@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css?family=Poppins');
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --color-primary: #134B70;
+    --color-secondary: #508C9B;
+    --color-accent: #EEEEEE;
+
+}
+body {
+    font-family: "Poppins", sans-serif;
+}

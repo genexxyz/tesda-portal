@@ -1,0 +1,11 @@
+{
+    "navigation": [
+        {
+            "label": "Dashboard",
+            "route": "admin.dashboard",
+            "icon": "dashboard",
+            "icon_style": "fas",
+            "active_routes": ["admin.dashboard"]
+        }
+    ]
+}
