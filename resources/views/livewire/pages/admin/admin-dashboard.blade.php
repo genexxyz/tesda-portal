@@ -1,3 +1,3 @@
 <div>
-    This is the admin dashboard page.
+    <x-partials.header title="Admin Dashboard" />
 </div>

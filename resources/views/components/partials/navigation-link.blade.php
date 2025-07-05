@@ -6,7 +6,7 @@
     
     <x-icon :name="$icon"
             :style="$iconStyle"
-            class="w-5 h-5 flex-shrink-0"
+            class="w-5 h-5 text-lg flex-shrink-0"
             x-bind:class="(isHovered || isMobile) ? 'mr-3' : ''"/>
     
     <span x-show="isHovered || isMobile"

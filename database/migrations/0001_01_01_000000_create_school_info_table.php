@@ -36,18 +36,19 @@ return new class extends Migration
             $table->id();
             $table->string('code')->unique();
             $table->string('name')->unique();
+            $table->foreignId('campus_id')->constrained('campuses')->restrictOnDelete();
             $table->timestamps();
         });
 
         Schema::create('academics', function (Blueprint $table) {
             $table->id();
-            $table->string('academic_year');
+$table->year('start_year');
+            $table->year('end_year');
             $table->string('semester');
-            $table->boolean('ay_default')->default(false);
+            $table->boolean('is_active')->default(false);
             $table->boolean('status')->default(true);
             $table->string('description')->nullable();
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
+            
             $table->timestamps();
         });
 

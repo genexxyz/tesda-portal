@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Campus;
+use App\Models\Course;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\School;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -21,13 +24,36 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
+        School::create([
+            'name' => 'Bulacan Polytechnic College',
+            'address' => 'Bulihan, City Of Malolos, Bulacan 3000',
+            'contact_number' => '09123456789',
+            'email' => 'communications@bpc.edu.ph',
+            'website' => 'bpc.edu.ph',
+            'logo' => 'default.png',
+            'tag_line' => 'Your Partner to Reach the World',
+        ]);
+
+        Campus::create([
+            'code' => 'MA',
+            'name' => 'MALOLOS',
+            'number' => 1,
+            'color' => '#0000FF', // Blue
+        ]);
+
+        Course::create([
+            'code' => 'HRS',
+            'name' => 'Hotel and Restaurant Services',
+            'campus_id' => Campus::where('code', 'MA')->value('id'),
+        ]);
+
+
         $roles = ['admin', 'registrar', 'program-head', 'assessor', 'student'];
 
         foreach ($roles as $role) {
             Role::create(['name' => $role]);
         }
 
-        
 
         User::create([
             'last_name' => 'Admin',

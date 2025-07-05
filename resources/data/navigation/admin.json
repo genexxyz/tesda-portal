@@ -6,6 +6,41 @@
             "icon": "dashboard",
             "icon_style": "fas",
             "active_routes": ["admin.dashboard"]
+        },
+        {
+            "label": "Academic Year",
+            "route": "admin.academics",
+            "icon": "calendar",
+            "icon_style": "fas",
+            "active_routes": ["admin.academics"]
+        },
+        {
+            "label": "Campuses",
+            "route": "admin.campuses",
+            "icon": "building",
+            "icon_style": "fas",
+            "active_routes": ["admin.campuses"]
+        },
+        {
+            "label": "Courses",
+            "route": "admin.courses",
+            "icon": "book",
+            "icon_style": "fas",
+            "active_routes": ["admin.courses"]
+        },
+        {
+            "label": "Programs Heads",
+            "route": "admin.program-heads",
+            "icon": "user-tie",
+            "icon_style": "fas",
+            "active_routes": ["admin.program-heads"]
+        },
+        {
+            "label": "Registrars",
+            "route": "admin.registrars",
+            "icon": "user-graduate",
+            "icon_style": "fas",
+            "active_routes": ["admin.registrars"]
         }
     ]
 }

@@ -17,14 +17,14 @@
             :type="show ? 'text' : 'password'"
             {{ $disabled ? 'disabled' : '' }}
             {!! $attributes->merge([
-                'class' => 'w-full text-sm pl-5 pr-10 font-medium border-1 border-gray-700 focus:border-primary h-10' . 
+                'class' => 'w-full text-sm pl-5 font-medium border-2 border-gray-400 rounded-md h-10' . 
                           ($error ? ' border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500' : '')
             ]) !!}>
             
         <button 
             type="button"
             @click="show = !show"
-            class="absolute inset-y-0 right-0 px-3 flex items-center"
+            class="absolute inset-y-0 right-0 px-3 flex items-center cursor-pointer"
         >
             <x-icon 
                 name="eye" 
@@ -44,7 +44,7 @@
     </div>
 
     @error($attributes->wire('model')->value())
-        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
     @enderror
 </div>
 

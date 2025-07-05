@@ -11,7 +11,6 @@
                     type="email" 
                     id="email"
                     placeholder="Enter your email..." 
-                    required 
                     autofocus 
                 />
                 <x-inputs.password-input 
@@ -19,7 +18,7 @@
                     label="Password" 
                     id="password"
                     placeholder="Enter your password..." 
-                    required 
+                    
                 />
                 <div class="w-full flex justify-end mb-5">
                     <x-buttons.link 
@@ -31,7 +30,7 @@
                     </x-buttons.link>
                 </div>
 
-                <x-buttons.primary-button type="submit">
+                <x-buttons.primary-button class="w-full" type="submit">
                     Login
                 </x-buttons.primary-button>
             </form>

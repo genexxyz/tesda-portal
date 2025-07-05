@@ -104,9 +104,10 @@ class="bg-white border-b border-gray-100 relative z-40">
 
         <!-- Right side - User Info & Dropdown -->
         <div class="relative">
+            
             <button 
                 @click="userDropdown = !userDropdown" 
-                class="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-50 smooth-transition"
+                class="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-50 smooth-transition cursor-pointer"
                 x-bind:aria-expanded="userDropdown"
                 aria-haspopup="true"
                 type="button">
@@ -154,14 +155,17 @@ class="bg-white border-b border-gray-100 relative z-40">
                 
                 <hr class="my-1 border-gray-200">
                 
-                <button 
-                    wire:click="logout" 
-                    class="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 smooth-transition rounded-md mx-1"
-                    role="menuitem"
-                    @click="closeDropdown()">
-                    <x-icon name="sign-out-alt" style="fas" class="mr-2 w-4 h-4"/>
-                    Logout
-                </button>
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
+    @csrf
+    <button 
+        type="submit"
+        class="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 smooth-transition rounded-md mx-1 cursor-pointer"
+        role="menuitem"
+        @click="closeDropdown()">
+        <x-icon name="sign-out-alt" style="fas" class="mr-2 w-4 h-4"/>
+        Logout
+    </button>
+</form>
             </div>
         </div>
     </div>
