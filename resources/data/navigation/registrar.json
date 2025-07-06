@@ -1,0 +1,18 @@
+{
+    "navigation": [
+        {
+            "label": "Dashboard",
+            "route": "registrar.dashboard",
+            "icon": "dashboard",
+            "icon_style": "fas",
+            "active_routes": ["registrar.dashboard"]
+        },
+        {
+            "label": "Students",
+            "route": "registrar.students",
+            "icon": "user",
+            "icon_style": "fas",
+            "active_routes": ["registrar.students"]
+        }
+    ]
+}

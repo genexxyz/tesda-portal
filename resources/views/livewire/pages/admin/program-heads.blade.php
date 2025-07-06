@@ -65,24 +65,7 @@
             </div>
         @endif
 
-        <!-- Results Summary -->
-        <div class="mb-4 flex items-center justify-between">
-            <div class="text-sm text-gray-600">
-                Showing {{ $programHeads->count() }} of {{ $programHeads->total() }} program heads
-                @if($search || $campusFilter)
-                    <span class="text-blue-600 font-medium">(filtered)</span>
-                @endif
-            </div>
-
-            <!-- Quick Filter Buttons -->
-            <div class="flex items-center space-x-2">
-                <button wire:click="$set('campusFilter', 'unassigned')"
-                        class="inline-flex items-center px-2 py-1 text-xs font-medium rounded {{ $campusFilter === 'unassigned' ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
-                    <x-icon name="graduation-cap" style="fas" class="w-3 h-3 mr-1" />
-                    No Courses
-                </button>
-            </div>
-        </div>
+        
 
         <!-- Table with Loading State -->
         <div class="relative">

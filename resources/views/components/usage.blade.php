@@ -2,9 +2,25 @@ Primary Button
 
 <x-buttons.primary-button type="submit">Save</x-buttons.primary-button>
 <x-buttons.primary-button wire:click="doSomething">Click Me</x-buttons.primary-button>
-<x-buttons.primary-button :disabled="true">Disabled</x-buttons.primary
+<x-buttons.primary-button :disabled="true">Disabled</x-buttons.primary>
 
 
+    Import Buttons
+<x-import-export-buttons 
+    import-modal="modals.admin.import-users"
+    :show-export="false" />
+
+<!-- Only export -->
+<x-import-export-buttons 
+    export-method="exportData"
+    :show-import="false" />
+
+<!-- Both with custom tooltips -->
+<x-import-export-buttons 
+    import-modal="modals.admin.import-courses"
+    export-method="exportCourses"
+    import-tooltip="Upload course data from Excel"
+    export-tooltip="Download course list as CSV" />
 
 
 Basic link

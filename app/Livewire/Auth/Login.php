@@ -21,18 +21,37 @@ class Login extends Component
     ];
 
     public function login()
-    {
-        $credentials = $this->validate();
+{
+    $credentials = $this->validate();
 
-        if (Auth::attempt($credentials)) {
-            session()->regenerate();
+    if (Auth::attempt($credentials)) {
+        session()->regenerate();
 
-            return redirect()->intended('/dashboard')->with('success', 'Welcome back!');
+        $user = Auth::user();
+        
+        // Check if user has a role
+        if (!$user->role) {
+            Auth::logout();
+            $this->addError('email', 'Your account does not have proper access permissions.');
+            return;
         }
 
-        $this->addError('email', 'The provided credentials do not match our records.');
-        $this->reset('password');
+        // Redirect based on role
+        switch ($user->role->name) {
+            case 'admin':
+                return redirect()->route('admin.dashboard')->with('success', 'Welcome back, Admin!');
+            case 'registrar':
+                return redirect()->route('registrar.dashboard')->with('success', 'Welcome back, Registrar!');
+            default:
+                Auth::logout();
+                $this->addError('email', 'Invalid role assigned to your account.');
+                return;
+        }
     }
+
+    $this->addError('email', 'The provided credentials do not match our records.');
+    $this->reset('password');
+}
     
     public function render()
     {

@@ -39,10 +39,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete()->nullable();
             $table->string('student_id')->unique();
             $table->string('uli')->nullable();
-            $table->string('last_name')->nullable();
-            $table->string('first_name')->nullable();
-            $table->string('middle_name')->nullable();
             $table->foreignId('course_id')->constrained('courses')->restrictOnDelete();
+            $table->foreignId('academic_year_id')->constrained('academics')->restrictOnDelete();
+            $table->timestamps();
         });
 
 

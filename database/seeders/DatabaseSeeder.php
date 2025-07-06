@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Academic;
 use App\Models\Campus;
 use App\Models\Course;
 use App\Models\User;
@@ -47,6 +48,15 @@ class DatabaseSeeder extends Seeder
             'campus_id' => Campus::where('code', 'MA')->value('id'),
         ]);
 
+        Academic::create([
+            'start_year' => '2025',
+            'end_year' => '2026',
+            'semester' => '1st Semester',
+            'is_active' => true,
+            'status' => true,
+            'description' => null,
+        ]);
+
 
         $roles = ['admin', 'registrar', 'program-head', 'assessor', 'student'];
 
@@ -58,11 +68,21 @@ class DatabaseSeeder extends Seeder
         User::create([
             'last_name' => 'Admin',
             'first_name' => 'User',
-            'middle_name' => 'A',
+            'middle_name' => '',
             'email' => 'admin@bpc.edu.ph',
             'password' => bcrypt('password'),
             'campus_id' => null,
             'role_id' => Role::where('name', 'admin')->value('id'),
+        ]);
+
+        User::create([
+            'last_name' => 'Registrar',
+            'first_name' => 'User',
+            'middle_name' => '',
+            'email' => 'registrar-malolos@bpc.edu.ph',
+            'password' => bcrypt('password'),
+            'campus_id' => Campus::where('code', 'MA')->value('id'),
+            'role_id' => Role::where('name', 'registrar')->value('id'),
         ]);
     }
 }
