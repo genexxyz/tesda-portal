@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Auth\Login;
 use App\Livewire\Pages\Admin\AdminDashboard;
 use App\Livewire\Pages\Admin\Academics;
+use App\Livewire\Pages\Admin\AssessmentManagement;
 use App\Livewire\Pages\Admin\Campuses;
 use App\Livewire\Pages\Admin\Courses;
 use App\Livewire\Pages\Admin\ProgramHeads;
@@ -28,6 +29,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/courses', Courses::class)->name('courses');
         Route::get('/program-heads', ProgramHeads::class)->name('program-heads');
         Route::get('/registrars', Registrars::class)->name('registrars');
+        Route::get('/assessment-management', AssessmentManagement::class)->name('assessment-management');
     });
 
     // Registrar routes

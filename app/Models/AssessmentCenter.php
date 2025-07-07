@@ -5,14 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Assessor extends Model
+class AssessmentCenter extends Model
 {
     protected $fillable = [
         'name',
+        'address',
     ];
 
-    public function assessmentCenters(): BelongsToMany
+    public function assessors(): BelongsToMany
     {
-        return $this->belongsToMany(AssessmentCenter::class, 'assessor_centers');
+        return $this->belongsToMany(Assessor::class, 'assessor_centers');
     }
 }

@@ -6,8 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class QualificationType extends Model
 {
+    
+
     protected $fillable = [
+        'code',
         'name',
+        'level',
         'description',
     ];
 }

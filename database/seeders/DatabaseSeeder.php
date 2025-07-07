@@ -58,7 +58,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
-        $roles = ['admin', 'registrar', 'program-head', 'assessor', 'student'];
+        $roles = ['admin', 'registrar', 'program-head', 'tesda-focal', 'student'];
 
         foreach ($roles as $role) {
             Role::create(['name' => $role]);

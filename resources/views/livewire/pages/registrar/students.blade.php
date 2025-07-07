@@ -1,6 +1,6 @@
 <div>
     @if($userCampus)
-    <x-partials.header title="{{ 'Student Managment (' . $userCampus->name . ')'}}" breadcrumb="Students" />
+    <x-partials.header title="{{ 'Student Management (' . $userCampus->name . ')'}}" breadcrumb="Students" />
     @endif
     <x-buttons.floating-add-button 
         wire-click="$dispatch('openModal', { component: 'modals.registrar.add-new-student' })"

@@ -41,6 +41,13 @@
             "icon": "user-graduate",
             "icon_style": "fas",
             "active_routes": ["admin.registrars"]
+        },
+        {
+            "label": "Assessment Management",
+            "route": "admin.assessment-management",
+            "icon": "clipboard-list",
+            "icon_style": "fas",
+            "active_routes": ["admin.assessment-management"]
         }
     ]
 }

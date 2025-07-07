@@ -42,18 +42,14 @@ return new class extends Migration
 
         Schema::create('academics', function (Blueprint $table) {
             $table->id();
-$table->year('start_year');
+            $table->year('start_year');
             $table->year('end_year');
             $table->string('semester');
             $table->boolean('is_active')->default(false);
             $table->boolean('status')->default(true);
             $table->string('description')->nullable();
-            
             $table->timestamps();
         });
-
-
-
     }
 
     /**

@@ -52,14 +52,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('assessors', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->restrictOnDelete();
-            $table->string('name');
-            $table->timestamps();
-        });
-
-
+        
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
@@ -85,6 +78,7 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('roles');
         Schema::dropIfExists('student');
+        Schema::dropIfExists('program_heads');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }

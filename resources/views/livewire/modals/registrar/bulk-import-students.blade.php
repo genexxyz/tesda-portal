@@ -27,9 +27,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('academic_year_id') 
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p> 
-                        @enderror
+                        <x-error for="academic_year_id" />
                     </div>
 
                     <!-- File Upload -->
@@ -41,9 +39,7 @@
                                wire:model="file"
                                accept=".xlsx,.xls,.csv"
                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        @error('file') 
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p> 
-                        @enderror
+                        <x-error for="file" />
                     </div>
 
                     <!-- Template Download -->

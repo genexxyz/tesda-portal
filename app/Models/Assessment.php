@@ -8,7 +8,7 @@ class Assessment extends Model
 {
     protected $fillable = [
         'exam_type_id',
-        'competency_type_id',
+        'qualification_type_id',
         'campus_id',
         'course_id',
         'academic_year_id',
@@ -23,9 +23,9 @@ class Assessment extends Model
         return $this->belongsTo(ExamType::class);
     }
 
-    public function competencyType()
+    public function qualificationType()
     {
-        return $this->belongsTo(CompetencyType::class);
+        return $this->belongsTo(QualificationType::class);
     }
 
     public function campus()

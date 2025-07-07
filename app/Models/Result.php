@@ -9,7 +9,7 @@ class Result extends Model
     protected $fillable = [
         'assessment_id',
         'student_id',
-        'qualification_type_id',
+        'competency_type_id',
         'remarks',
 
     ];
@@ -23,9 +23,9 @@ class Result extends Model
     {
         return $this->belongsTo(Student::class);
     }
-    public function qualificationType()
+    public function competencyType()
     {
-        return $this->belongsTo(QualificationType::class);
+        return $this->belongsTo(CompetencyType::class);
     }
     
 }

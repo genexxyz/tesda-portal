@@ -48,3 +48,5 @@ window.addEventListener('swal:success', (event) => {
         showCancelButton: false,
     });
 });
+
+

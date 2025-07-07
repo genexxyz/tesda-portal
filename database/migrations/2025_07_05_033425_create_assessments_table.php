@@ -20,6 +20,14 @@ return new class extends Migration
 
         Schema::create('competency_types', function (Blueprint $table) {
             $table->id();
+            $table->string('name'); //Competent, Not Yet Competent, Dropped, Absent
+            $table->string('description')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('qualification_types', function (Blueprint $table) {
+            
+            $table->id();
             $table->string('code'); //BKP, SMAW, FBS
             $table->string('name');
             $table->string('level'); // NC I, NC II, NC III, NC IV
@@ -27,10 +35,23 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('qualification_types', function (Blueprint $table) {
+        Schema::create('assessment_centers', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); //Competent, Not Yet Competent, Dropped, Absent
-            $table->string('description')->nullable();
+            $table->string('name');
+            $table->string('address');
+            $table->timestamps();
+        });
+
+        Schema::create('assessors', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('assessor_centers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('assessor_id')->constrained('assessors')->restrictOnDelete();
+            $table->foreignId('assessment_center_id')->constrained('assessment_centers')->restrictOnDelete();
             $table->timestamps();
         });
 
@@ -38,12 +59,12 @@ return new class extends Migration
         Schema::create('assessments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('exam_type_id')->constrained('exam_types')->restrictOnDelete();
-            $table->foreignId('competency_type_id')->constrained('competency_types')->restrictOnDelete();
+            $table->foreignId('qualification_type_id')->constrained('qualification_types')->restrictOnDelete();
             $table->foreignId('campus_id')->constrained('campuses')->restrictOnDelete();
             $table->foreignId('course_id')->constrained('courses')->restrictOnDelete();
             $table->foreignId('academic_year_id')->constrained('academics')->restrictOnDelete();
 
-            $table->string('assessment_center');
+            $table->foreignId('assessment_center_id')->constrained('assessment_centers')->restrictOnDelete();
             $table->foreignId('assessor_id')->constrained('assessors')->restrictOnDelete();
             $table->date('assessment_date');
             $table->timestamps();
@@ -53,7 +74,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('assessment_id')->constrained('assessments')->restrictOnDelete();
             $table->foreignId('student_id')->constrained('students')->restrictOnDelete();
-            $table->foreignId('qualification_type_id')->constrained('qualification_types')->restrictOnDelete();
+            $table->foreignId('competency_type_id')->constrained('competency_types')->restrictOnDelete();
             $table->text('remarks')->nullable();
             $table->timestamps();
         });
@@ -64,6 +85,13 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('exam_types');
+        Schema::dropIfExists('competency_types');
+        Schema::dropIfExists('qualification_types');
+        Schema::dropIfExists('assessment_centers');
+        Schema::dropIfExists('assessors');
+        Schema::dropIfExists('assessor_centers');
         Schema::dropIfExists('assessments');
+        Schema::dropIfExists('results');
     }
 };
