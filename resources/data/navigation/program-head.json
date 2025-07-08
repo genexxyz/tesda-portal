@@ -1,0 +1,25 @@
+{
+    "navigation": [
+        {
+            "label": "Dashboard",
+            "route": "program-head.dashboard",
+            "icon": "dashboard",
+            "icon_style": "fas",
+            "active_routes": ["program-head.dashboard"]
+        },
+        {
+            "label": "Students",
+            "route": "program-head.students",
+            "icon": "users",
+            "icon_style": "fas",
+            "active_routes": ["program-head.students"]
+        },
+        {
+            "label": "Assessments",
+            "route": "program-head.assessments",
+            "icon": "clipboard-list",
+            "icon_style": "fas",
+            "active_routes": ["program-head.assessments"]
+        }
+    ]
+}

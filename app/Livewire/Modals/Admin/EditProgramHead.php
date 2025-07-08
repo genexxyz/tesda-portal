@@ -87,11 +87,13 @@ class EditProgramHead extends ModalComponent
     public function loadCourses()
     {
         if ($this->campus_id) {
-            // Get all courses for this campus (including assigned ones for editing)
-            $this->availableCourses = Course::where('campus_id', $this->campus_id)
-                                          ->orderBy('code', 'asc')
-                                          ->get()
-                                          ->toArray();
+            // Get all courses for this campus using the pivot table
+            $this->availableCourses = Course::whereHas('campuses', function($query) {
+                                            $query->where('campuses.id', $this->campus_id);
+                                        })
+                                        ->orderBy('code', 'asc')
+                                        ->get()
+                                        ->toArray();
         } else {
             $this->availableCourses = [];
         }

@@ -23,4 +23,11 @@ class Campus extends Model
         return $this->hasMany(User::class);
     }
     
+    /**
+     * Get the courses associated with the campus.
+     */
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'campus_course');
+    }
 }

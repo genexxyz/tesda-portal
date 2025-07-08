@@ -45,7 +45,6 @@ class DatabaseSeeder extends Seeder
         Course::create([
             'code' => 'HRS',
             'name' => 'Hotel and Restaurant Services',
-            'campus_id' => Campus::where('code', 'MA')->value('id'),
         ]);
 
         Academic::create([
@@ -83,6 +82,16 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
             'campus_id' => Campus::where('code', 'MA')->value('id'),
             'role_id' => Role::where('name', 'registrar')->value('id'),
+        ]);
+
+        User::create([
+            'last_name' => 'Program Head',
+            'first_name' => 'User',
+            'middle_name' => '',
+            'email' => 'ph-malolos@bpc.edu.ph',
+            'password' => bcrypt('password'),
+            'campus_id' => Campus::where('code', 'MA')->value('id'),
+            'role_id' => Role::where('name', 'program-head')->value('id'),
         ]);
     }
 }

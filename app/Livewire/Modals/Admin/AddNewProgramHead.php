@@ -63,12 +63,15 @@ class AddNewProgramHead extends ModalComponent
     public function loadCourses()
     {
         if ($this->campus_id) {
-            // Get courses that are NOT already assigned to any program head
-            $this->availableCourses = Course::where('campus_id', $this->campus_id)
-                                          ->whereDoesntHave('programHead')
-                                          ->orderBy('code', 'asc')
-                                          ->get()
-                                          ->toArray();
+            // Get courses that are available for the selected campus using pivot table
+            // and are NOT already assigned to any program head
+            $this->availableCourses = Course::whereHas('campuses', function($query) {
+                                            $query->where('campuses.id', $this->campus_id);
+                                        })
+                                        ->whereDoesntHave('programHead')
+                                        ->orderBy('code', 'asc')
+                                        ->get()
+                                        ->toArray();
         } else {
             $this->availableCourses = [];
         }

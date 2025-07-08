@@ -14,4 +14,20 @@ class QualificationType extends Model
         'level',
         'description',
     ];
+    
+    /**
+     * Get the courses associated with the qualification type.
+     */
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'course_qualification');
+    }
+    
+    /**
+     * Get the results associated with the qualification type.
+     */
+    public function results()
+    {
+        return $this->hasMany(Result::class);
+    }
 }

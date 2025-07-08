@@ -23,10 +23,9 @@
                 <x-inputs.filter-select 
                     id="campusFilter"
                     wire:model.live="campusFilter"
-                    
                     placeholder="All Campuses"
                     icon="building"
-                    :options="collect($campuses)" />
+                    :options="collect($campuses)->prepend(['id' => 'unassigned', 'name' => 'No Courses Assigned'])" />
             </div>
         </div>
 
@@ -112,12 +111,16 @@
                                 <div class="text-sm text-gray-900">{{ $course->name }}</div>
                             </x-tables.table-cell>
                             <x-tables.table-cell>
-                                @if($course->campus_id && $course->campus)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
-                                          style="background-color: {{ $course->campus->color }}20; color: {{ $course->campus->color }}; border: 1px solid {{ $course->campus->color }}40;">
-                                        <div class="w-2 h-2 rounded-full mr-1" style="background-color: {{ $course->campus->color }}"></div>
-                                        {{ $course->campus->name }}
-                                    </span>
+                                @if($course->campuses && $course->campuses->isNotEmpty())
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach($course->campuses as $campus)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
+                                                  style="background-color: {{ $campus->color }}20; color: {{ $campus->color }}; border: 1px solid {{ $campus->color }}40;">
+                                                <div class="w-2 h-2 rounded-full mr-1" style="background-color: {{ $campus->color }}"></div>
+                                                {{ $campus->name }}
+                                            </span>
+                                        @endforeach
+                                    </div>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
                                         <x-icon name="minus-circle" style="fas" class="w-3 h-3 mr-1" />

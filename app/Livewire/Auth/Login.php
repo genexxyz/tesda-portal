@@ -42,6 +42,12 @@ class Login extends Component
                 return redirect()->route('admin.dashboard')->with('success', 'Welcome back, Admin!');
             case 'registrar':
                 return redirect()->route('registrar.dashboard')->with('success', 'Welcome back, Registrar!');
+                case 'program-head':
+                return redirect()->route('program-head.dashboard')->with('success', 'Welcome back, Program Head!');
+            case 'tesda-focal':
+                return redirect()->route('tesda-focal.dashboard')->with('success', 'Welcome back!');
+            case 'student':
+                return redirect()->route('student.dashboard')->with('success', 'Welcome back, Student!');
             default:
                 Auth::logout();
                 $this->addError('email', 'Invalid role assigned to your account.');

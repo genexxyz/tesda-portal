@@ -23,4 +23,12 @@ class Academic extends Model
         return $this->hasMany(Course::class);
     }
 
+    /**
+     * Get the description attribute for the academic year.
+     */
+    public function getDescriptionAttribute()
+    {
+        return $this->start_year . '-' . $this->end_year . ' ' . ucfirst($this->semester);
+    }
+
 }

@@ -15,4 +15,6 @@ class Assessor extends Model
     {
         return $this->belongsToMany(AssessmentCenter::class, 'assessor_centers');
     }
+
+    
 }

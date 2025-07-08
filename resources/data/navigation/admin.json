@@ -36,6 +36,13 @@
             "active_routes": ["admin.program-heads"]
         },
         {
+            "label": "Qualification Types",
+            "route": "admin.qualification-types",
+            "icon": "certificate",
+            "icon_style": "fas",
+            "active_routes": ["admin.qualification-types"]
+        },
+        {
             "label": "Registrars",
             "route": "admin.registrars",
             "icon": "user-graduate",

@@ -12,9 +12,15 @@ class Assessment extends Model
         'campus_id',
         'course_id',
         'academic_year_id',
-        'assessment_center',
+        'assessment_center_id',
         'assessor_id',
         'assessment_date',
+        'created_by',
+        'status',
+    ];
+
+    protected $casts = [
+        'assessment_date' => 'date',
     ];
 
 
@@ -46,5 +52,21 @@ class Assessment extends Model
     public function assessor()
     {
         return $this->belongsTo(Assessor::class);
+    }
+
+    /**
+     * Get the assessment center associated with the assessment.
+     */
+    public function assessmentCenter()
+    {
+        return $this->belongsTo(AssessmentCenter::class);
+    }
+
+    /**
+     * Get the results associated with the assessment.
+     */
+    public function results()
+    {
+        return $this->hasMany(Result::class);
     }
 }

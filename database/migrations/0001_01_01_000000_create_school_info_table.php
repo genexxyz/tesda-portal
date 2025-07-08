@@ -36,7 +36,14 @@ return new class extends Migration
             $table->id();
             $table->string('code')->unique();
             $table->string('name')->unique();
+            $table->timestamps();
+        });
+
+        //Create pivot table for campus and course
+        Schema::create('campus_course', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('campus_id')->constrained('campuses')->restrictOnDelete();
+            $table->foreignId('course_id')->constrained('courses')->restrictOnDelete();
             $table->timestamps();
         });
 
@@ -60,6 +67,7 @@ return new class extends Migration
         Schema::dropIfExists('school_info');
         Schema::dropIfExists('campuses');
         Schema::dropIfExists('courses');
+        Schema::dropIfExists('campus_course');
         Schema::dropIfExists('academics');
     }
 };

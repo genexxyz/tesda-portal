@@ -8,7 +8,9 @@ use App\Livewire\Pages\Admin\AssessmentManagement;
 use App\Livewire\Pages\Admin\Campuses;
 use App\Livewire\Pages\Admin\Courses;
 use App\Livewire\Pages\Admin\ProgramHeads;
+use App\Livewire\Pages\Admin\QualificationTypes;
 use App\Livewire\Pages\Admin\Registrars;
+use App\Livewire\Pages\ProgramHead\ProgramHeadDashboard;
 use App\Livewire\Pages\Registrar\RegistrarDashboard;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,6 +30,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/campuses', Campuses::class)->name('campuses');
         Route::get('/courses', Courses::class)->name('courses');
         Route::get('/program-heads', ProgramHeads::class)->name('program-heads');
+        Route::get('/qualification-types', QualificationTypes::class)->name('qualification-types');
         Route::get('/registrars', Registrars::class)->name('registrars');
         Route::get('/assessment-management', AssessmentManagement::class)->name('assessment-management');
     });
@@ -36,6 +39,13 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:registrar')->prefix('registrar')->name('registrar.')->group(function () {
         Route::get('/dashboard', RegistrarDashboard::class)->name('dashboard');
         Route::get('/students', \App\Livewire\Pages\Registrar\Students::class)->name('students');
+    });
+
+    //Program Head routes
+    Route::middleware('role:program-head')->prefix('program-head')->name('program-head.')->group(function () {
+        Route::get('/dashboard', ProgramHeadDashboard::class)->name('dashboard');
+        Route::get('/students', \App\Livewire\Pages\ProgramHead\Students::class)->name('students');
+        Route::get('/assessments', \App\Livewire\Pages\ProgramHead\Assessments::class)->name('assessments');
     });
 
     Route::post('/logout', function () {

@@ -128,21 +128,18 @@
                                 @endif
                             </x-tables.table-cell>
                             <x-tables.table-cell>
-                                @php
-                                    $courses = \App\Models\ProgramHead::where('user_id', $programHead->id)->with('course')->get();
-                                @endphp
-                                @if($courses->count() > 0)
+                                @if(isset($programHead->courseAssignments) && $programHead->courseAssignments->count() > 0)
                                     <div class="flex flex-wrap gap-1">
-                                        @foreach($courses->take(2) as $programHeadCourse)
+                                        @foreach($programHead->courseAssignments->take(2) as $programHeadCourse)
                                             @if($programHeadCourse->course)
                                                 <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-indigo-100 text-indigo-800">
                                                     {{ $programHeadCourse->course->code }}
                                                 </span>
                                             @endif
                                         @endforeach
-                                        @if($courses->count() > 2)
+                                        @if($programHead->courseAssignments->count() > 2)
                                             <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
-                                                +{{ $courses->count() - 2 }} more
+                                                +{{ $programHead->courseAssignments->count() - 2 }} more
                                             </span>
                                         @endif
                                     </div>

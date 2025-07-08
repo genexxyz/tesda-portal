@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class StudentImport extends Import
 {
@@ -48,9 +49,9 @@ class StudentImport extends Import
             // Clean and validate student ID format
             $studentId = strtoupper(trim($row['student_id']));
             if (!preg_match('/^[A-Z]{2}\d{8}$/', $studentId)) {
-            $this->pushError("Invalid student ID format. Expected format: AB12345678");
-            return;
-        }
+                $this->pushError("Invalid student ID format. Expected format: AB12345678");
+                return;
+            }
 
             // Check if student ID already exists
             if (Student::where('student_id', $studentId)->exists()) {
@@ -58,9 +59,11 @@ class StudentImport extends Import
                 return;
             }
 
-            // Find course by code in registrar's campus
+            // Find course by code in registrar's campus using pivot table
             $course = Course::where('code', trim($row['course_code']))
-                           ->where('campus_id', $this->registrarCampusId)
+                           ->whereHas('campuses', function($query) {
+                               $query->where('campuses.id', $this->registrarCampusId);
+                           })
                            ->first();
 
             if (!$course) {
@@ -87,12 +90,12 @@ class StudentImport extends Import
                 return;
             }
 
-            // Create user
+            // Create user with proper name formatting
             $user = User::create([
                 'email' => $email,
-                'last_name' => ucfirst(strtolower(trim($row['last_name']))),
-                'first_name' => ucfirst(strtolower(trim($row['first_name']))),
-                'middle_name' => !empty($row['middle_name']) ? ucfirst(strtolower(trim($row['middle_name']))) : null,
+                'last_name' => $this->formatName(trim($row['last_name'])),
+                'first_name' => $this->formatName(trim($row['first_name'])),
+                'middle_name' => !empty($row['middle_name']) ? $this->formatName(trim($row['middle_name'])) : null,
                 'campus_id' => $this->registrarCampusId,
                 'role_id' => 5, // Student role
                 'status' => 'active',
@@ -115,6 +118,73 @@ class StudentImport extends Import
         }
     }
 
+    /**
+     * Format name to properly capitalize each word
+     * Examples:
+     * - "MARIA CLARA" → "Maria Clara"
+     * - "JOSE MIGUEL" → "Jose Miguel"
+     * - "MC DONALD" → "McDonald"
+     * - "MARY-JANE" → "Mary-Jane"
+     */
+    private function formatName($name)
+    {
+        if (empty($name)) {
+            return null;
+        }
+
+        // Convert to lowercase first
+        $name = strtolower($name);
+        
+        // Split by spaces and capitalize each word
+        $words = explode(' ', $name);
+        $formattedWords = [];
+        
+        foreach ($words as $word) {
+            if (empty($word)) {
+                continue;
+            }
+            
+            // Handle special cases for common name prefixes/suffixes
+            $word = $this->handleSpecialNameCases($word);
+            
+            // Capitalize first letter
+            $formattedWords[] = ucfirst($word);
+        }
+        
+        return implode(' ', $formattedWords);
+    }
+
+    /**
+     * Handle special cases in names like "mc", "o'", etc.
+     */
+    private function handleSpecialNameCases($word)
+    {
+        // Special prefixes that have specific capitalization
+        $specialPrefixes = [
+            'mc' => 'Mc',      // McDonald → McDonald
+            'mac' => 'Mac',    // MacArthur → MacArthur
+            'o\'' => 'O\'',    // o'brien → O'Brien
+        ];
+        
+        // Check for special prefixes
+        foreach ($specialPrefixes as $prefix => $replacement) {
+            if (str_starts_with($word, $prefix)) {
+                return $replacement . substr($word, strlen($prefix));
+            }
+        }
+        
+        // Handle hyphenated names
+        if (str_contains($word, '-')) {
+            $parts = explode('-', $word);
+            $capitalizedParts = array_map(function($part) {
+                return ucfirst($part);
+            }, $parts);
+            return implode('-', $capitalizedParts);
+        }
+        
+        return $word;
+    }
+
     private function updateProgress($row)
     {
         $progressKey = $this->key . '_progress';
@@ -126,6 +196,4 @@ class StudentImport extends Import
         ];
         Cache::put($progressKey, $progressData, now()->addMinutes(10));
     }
-
-    
 }

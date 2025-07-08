@@ -1,7 +1,7 @@
 <div>
     <x-modals.modal-header 
-        title="Add New Course"
-        subtitle="Create a new course for the system." />
+        title="Edit Course"
+        subtitle="Update course information." />
 
     <form wire:submit="save">
         <x-modals.modal-body>
@@ -50,8 +50,6 @@
                         Select one or more campuses where this course will be available.
                     </p>
                 </div>
-
-                
             </div>
         </x-modals.modal-body>
 
@@ -63,7 +61,7 @@
             <x-buttons.primary-button
                 type="submit"
                 wire:loading.attr="disabled">
-                Create Course
+                Update Course
             </x-buttons.primary-button>
         </x-modals.modal-footer>
     </form>

@@ -108,12 +108,16 @@ class Students extends Component
     {
         $registrarCampusId = Auth::user()->campus_id;
         
-        // Get courses for the registrar's campus only
-        $campusCourses = Course::where('campus_id', $registrarCampusId)->get();
+        // Get courses for the registrar's campus only using the pivot table
+        $campusCourses = Course::whereHas('campuses', function($query) use ($registrarCampusId) {
+                                $query->where('campuses.id', $registrarCampusId);
+                            })->get();
         
         $students = Student::with(['course', 'user'])
                           ->whereHas('course', function($query) use ($registrarCampusId) {
-                              $query->where('campus_id', $registrarCampusId);
+                              $query->whereHas('campuses', function($q) use ($registrarCampusId) {
+                                  $q->where('campuses.id', $registrarCampusId);
+                              });
                           })
                           ->when($this->search, function($query) {
                               $query->where(function($q) {

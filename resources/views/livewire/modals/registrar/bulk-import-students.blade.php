@@ -222,7 +222,7 @@
     </x-modals.modal-footer>
 </div>
 
-@script
+@push('scripts')
 <script>
     // Auto-refresh import data every 2 seconds during import
     let refreshInterval;
@@ -244,4 +244,4 @@
         }
     });
 </script>
-@endscript
+@endpush

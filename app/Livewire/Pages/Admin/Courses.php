@@ -72,6 +72,12 @@ class Courses extends Component
                 return;
             }
             
+            // Detach all campus relationships before deleting
+            $course->campuses()->detach();
+            
+            // Detach all qualification type relationships before deleting
+            $course->qualificationTypes()->detach();
+            
             $course->delete();
             
             $this->dispatch('swal:success', [
@@ -91,7 +97,7 @@ class Courses extends Component
 
     public function render()
     {
-        $courses = Course::with(['campus', 'students'])
+        $courses = Course::with(['campuses', 'students'])
                         ->when($this->search, function($query) {
                             $query->where(function($q) {
                                 $q->where('code', 'like', '%' . $this->search . '%')
@@ -100,9 +106,11 @@ class Courses extends Component
                         })
                         ->when($this->campusFilter, function($query) {
                             if ($this->campusFilter === 'unassigned') {
-                                $query->whereNull('campus_id');
+                                $query->whereDoesntHave('campuses');
                             } else {
-                                $query->where('campus_id', $this->campusFilter);
+                                $query->whereHas('campuses', function($q) {
+                                    $q->where('campuses.id', $this->campusFilter);
+                                });
                             }
                         })
                         ->orderBy('code', 'asc')

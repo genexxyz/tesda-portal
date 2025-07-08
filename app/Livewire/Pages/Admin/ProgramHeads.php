@@ -130,6 +130,14 @@ class ProgramHeads extends Component
                            ->orderBy('first_name', 'asc')
                            ->paginate(10);
 
+        // Load course assignments for each program head to avoid N+1 queries
+        $programHeads->getCollection()->transform(function ($programHead) {
+            $programHead->courseAssignments = ProgramHead::where('user_id', $programHead->id)
+                                                        ->with('course')
+                                                        ->get();
+            return $programHead;
+        });
+
         $campuses = Campus::orderBy('name', 'asc')->get();
 
         return view('livewire.pages.admin.program-heads', [

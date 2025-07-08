@@ -118,7 +118,7 @@
                     @foreach($students as $student)
                         <x-tables.table-row wire:key="student-{{ $student->id }}">
                             <x-tables.table-cell class="w-16">
-                                
+                                {{ $loop->iteration + ($students->currentPage() - 1) * $students->perPage() }}
                             </x-tables.table-cell>
                             <x-tables.table-cell>
     <div class="flex items-center">

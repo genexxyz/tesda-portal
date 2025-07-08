@@ -72,4 +72,12 @@ class Student extends Model
     {
         return $this->user?->middle_name;
     }
+
+    /**
+     * Get the results associated with the student.
+     */
+    public function results()
+    {
+        return $this->hasMany(Result::class);
+    }
 }

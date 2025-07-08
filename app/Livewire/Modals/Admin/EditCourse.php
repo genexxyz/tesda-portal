@@ -4,24 +4,41 @@ namespace App\Livewire\Modals\Admin;
 
 use App\Models\Course;
 use App\Models\Campus;
-use App\Models\QualificationType;
 use LivewireUI\Modal\ModalComponent;
 use Livewire\Attributes\Rule;
 
-class AddNewCourse extends ModalComponent
+class EditCourse extends ModalComponent
 {
-    #[Rule('required|string|max:20|unique:courses,code')]
+    public $courseId;
+    public $course;
+
+    #[Rule('required|string|max:20')]
     public $code = '';
 
-    #[Rule('required|string|max:255|unique:courses,name')]
+    #[Rule('required|string|max:255')]
     public $name = '';
 
     #[Rule('nullable|array')]
     public $selectedCampuses = [];
 
-    public function mount()
+    public function mount($courseId)
     {
-        $this->selectedCampuses = [];
+        $this->courseId = $courseId;
+        $this->course = Course::with('campuses')->findOrFail($courseId);
+        
+        // Load course data
+        $this->code = $this->course->code;
+        $this->name = $this->course->name;
+        $this->selectedCampuses = $this->course->campuses->pluck('id')->toArray();
+    }
+
+    public function rules()
+    {
+        return [
+            'code' => 'required|string|max:20|unique:courses,code,' . $this->courseId,
+            'name' => 'required|string|max:255|unique:courses,name,' . $this->courseId,
+            'selectedCampuses' => 'nullable|array',
+        ];
     }
 
     public function updated($propertyName)
@@ -34,22 +51,20 @@ class AddNewCourse extends ModalComponent
         $this->validate();
 
         try {
-            $course = Course::create([
+            $this->course->update([
                 'code' => strtoupper($this->code),
                 'name' => strtoupper($this->name),
             ]);
 
-            // Attach selected campuses if any
-            if (!empty($this->selectedCampuses)) {
-                $course->campuses()->attach($this->selectedCampuses);
-            }
+            // Sync selected campuses
+            $this->course->campuses()->sync($this->selectedCampuses);
 
             $this->dispatch('swal:success', [
                 'title' => 'Success!',
-                'text' => 'Course created successfully!',
+                'text' => 'Course updated successfully!',
             ]);
 
-            $this->dispatch('course-created');
+            $this->dispatch('course-updated');
             $this->closeModal();
 
         } catch (\Exception $e) {
@@ -62,7 +77,7 @@ class AddNewCourse extends ModalComponent
 
     public function render()
     {
-        return view('livewire.modals.admin.add-new-course', [
+        return view('livewire.modals.admin.edit-course', [
             'campuses' => Campus::orderBy('name', 'asc')->get()
         ]);
     }

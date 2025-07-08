@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('exam_types', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['isa', 'mandatory'])->default('isa');
+            $table->enum('type', ['ISA', 'MANDATORY'])->default('ISA');
             $table->string('description')->nullable();
             $table->timestamps();
         });
@@ -29,9 +29,22 @@ return new class extends Migration
             
             $table->id();
             $table->string('code'); //BKP, SMAW, FBS
-            $table->string('name');
-            $table->string('level'); // NC I, NC II, NC III, NC IV
+            $table->string('name'); // e.g., Food and Beverage Services NC II, Shielded Metal Arc Welding NC I
+            $table->enum('level', ['NC I', 'NC II', 'NC III', 'NC IV'])->default('NC II'); // NC I, NC II, NC III, NC IV
             $table->string('description')->nullable();
+            $table->timestamps();
+
+            $table->unique(['code', 'level'], 'unique_code_level');
+            
+            // Add unique constraint for name + level combination
+            $table->unique(['name', 'level'], 'unique_name_level');
+        });
+
+//Create pivot table for course and qualification
+        Schema::create('course_qualification', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('course_id')->constrained('courses')->restrictOnDelete();
+            $table->foreignId('qualification_type_id')->constrained('qualification_types')->restrictOnDelete();
             $table->timestamps();
         });
 
@@ -68,15 +81,20 @@ return new class extends Migration
             $table->foreignId('assessor_id')->constrained('assessors')->restrictOnDelete();
             $table->date('assessment_date');
             $table->timestamps();
+            $table->foreignId('created_by')->constrained('users')->restrictOnDelete();
+            $table->string('status');
         });
+
 
         Schema::create('results', function (Blueprint $table) {
             $table->id();
             $table->foreignId('assessment_id')->constrained('assessments')->restrictOnDelete();
             $table->foreignId('student_id')->constrained('students')->restrictOnDelete();
-            $table->foreignId('competency_type_id')->constrained('competency_types')->restrictOnDelete();
+            $table->foreignId('competency_type_id')->nullable()->constrained('competency_types')->restrictOnDelete(); //will be used to store the result of the assessment (Competent, Not Yet Competent, Dropped, Absent) after the assessment date
             $table->text('remarks')->nullable();
             $table->timestamps();
+            $table->unique(['assessment_id', 'student_id']);
+
         });
     }
 
@@ -88,6 +106,7 @@ return new class extends Migration
         Schema::dropIfExists('exam_types');
         Schema::dropIfExists('competency_types');
         Schema::dropIfExists('qualification_types');
+        Schema::dropIfExists('course_qualification');
         Schema::dropIfExists('assessment_centers');
         Schema::dropIfExists('assessors');
         Schema::dropIfExists('assessor_centers');
