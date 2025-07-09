@@ -1,0 +1,334 @@
+<div>
+    <x-partials.header 
+        title="Submit Assessment Results" 
+        breadcrumb="Assessments > Submit Results" />
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a wire:navigate href="{{ route('program-head.assessments') }}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <x-icon name="arrow-left" style="fas" class="w-4 h-4 mr-2" />
+                Back to Assessments
+            </a>
+        </div>
+
+        <!-- Assessment Details Card -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Assessment Details</h3>
+            </div>
+            <div class="px-6 py-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Assessment Type</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $assessment->examType?->type ?? 'N/A' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Course</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $assessment->course?->name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Campus</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $assessment->campus?->name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Qualification Type</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $assessment->qualificationType?->name }} ({{ $assessment->qualificationType?->level }})</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Assessment Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $assessment->assessment_date?->format('F j, Y') }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Assessor</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $assessment->assessor?->name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Assessment Center</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $assessment->assessmentCenter?->name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Academic Year</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $assessment->academicYear?->description }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Total Students</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $assessment->results->count() }}</dd>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <x-icon name="users" style="fas" class="h-8 w-8 text-blue-600" />
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Students</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['total'] }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <x-icon name="check-circle" style="fas" class="h-8 w-8 text-green-600" />
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Completed</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['completed'] }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <x-icon name="clock" style="fas" class="h-8 w-8 text-yellow-600" />
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Pending</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['pending'] }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <x-icon name="certificate" style="fas" class="h-8 w-8 text-green-600" />
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Competent</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['competent'] }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <x-icon name="times-circle" style="fas" class="h-8 w-8 text-red-600" />
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Not Yet</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['not_yet_competent'] }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <x-icon name="user-times" style="fas" class="h-8 w-8 text-orange-600" />
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Absent</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['absent'] }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="bg-white shadow rounded-lg mb-6 p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">Completion Progress</span>
+                <span class="text-sm text-gray-500">{{ $stats['completed'] }}/{{ $stats['total'] }} ({{ $stats['completion_percentage'] }}%)</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {{ $stats['completion_percentage'] }}%"></div>
+            </div>
+        </div>
+
+        <!-- Students Results Table -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900">Student Results</h3>
+                    <button wire:click="saveResults"
+                            wire:loading.attr="disabled"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
+                        <span wire:loading.remove wire:target="saveResults">
+                            <x-icon name="save" style="fas" class="w-4 h-4 mr-2" />
+                            Save Results
+                        </span>
+                        <span wire:loading wire:target="saveResults">
+                            <x-icon name="spinner" style="fas" class="w-4 h-4 mr-2 animate-spin" />
+                            Saving...
+                        </span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Table Container with Fixed Header -->
+            <div class="overflow-hidden">
+                <!-- Fixed Header -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full table-fixed">
+                        <thead class="bg-gray-50 sticky top-0 z-10">
+                            <tr>
+                                <th class="w-80 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                                <th class="w-32 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="w-24 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Competent</th>
+                                <th class="w-32 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Not Yet</th>
+                                <th class="w-20 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Absent</th>
+                                <th class="flex-1 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                
+                <!-- Scrollable Body -->
+                <div class="overflow-y-auto max-h-96 overflow-x-auto">
+                    <table class="min-w-full table-fixed">
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($assessment->results as $result)
+                                <tr wire:key="result-{{ $result->id }}">
+                                    <!-- Student Column -->
+                                    <td class="w-80 px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <div class="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                                                    <x-icon name="user" style="fas" class="w-5 h-5 text-gray-500" />
+                                                </div>
+                                            </div>
+                                            <div class="ml-4 min-w-0 flex-1">
+                                                <div class="text-sm font-medium text-gray-900 truncate">
+                                                    {{ $result->student?->user?->first_name }} {{ $result->student?->user?->last_name }}
+                                                </div>
+                                                <div class="text-sm text-gray-500">
+                                                    {{ $result->student?->student_id }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Status Column -->
+                                    <td class="w-32 px-6 py-4 whitespace-nowrap text-center">
+                                        @if($studentResults[$result->id]['competency_type_id'])
+                                            @php
+                                                $selectedType = $competencyTypes->find($studentResults[$result->id]['competency_type_id']);
+                                            @endphp
+                                            @if($selectedType)
+                                                @if($selectedType->name === 'Competent')
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <x-icon name="check" style="fas" class="w-3 h-3 mr-1" />
+                                                        Competent
+                                                    </span>
+                                                @elseif($selectedType->name === 'Not Yet Competent')
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        <x-icon name="times" style="fas" class="w-3 h-3 mr-1" />
+                                                        Not Yet
+                                                    </span>
+                                                @elseif($selectedType->name === 'Absent')
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                        <x-icon name="user-times" style="fas" class="w-3 h-3 mr-1" />
+                                                        Absent
+                                                    </span>
+                                                @endif
+                                            @endif
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                <x-icon name="clock" style="fas" class="w-3 h-3 mr-1" />
+                                                Pending
+                                            </span>
+                                        @endif
+                                    </td>
+                                    
+                                    <!-- Competent Radio Button -->
+                                    <td class="w-24 px-6 py-4 whitespace-nowrap text-center">
+                                        @php
+                                            $competentType = $competencyTypes->where('name', 'Competent')->first();
+                                        @endphp
+                                        @if($competentType)
+                                            <input type="radio"
+                                                   name="result_{{ $result->id }}"
+                                                   wire:click="updateCompetencyType({{ $result->id }}, {{ $competentType->id }})"
+                                                   {{ $studentResults[$result->id]['competency_type_id'] == $competentType->id ? 'checked' : '' }}
+                                                   class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
+                                        @endif
+                                    </td>
+                                    
+                                    <!-- Not Yet Competent Radio Button -->
+                                    <td class="w-32 px-6 py-4 whitespace-nowrap text-center">
+                                        @php
+                                            $notCompetentType = $competencyTypes->where('name', 'Not Yet Competent')->first();
+                                        @endphp
+                                        @if($notCompetentType)
+                                            <input type="radio"
+                                                   name="result_{{ $result->id }}"
+                                                   wire:click="updateCompetencyType({{ $result->id }}, {{ $notCompetentType->id }})"
+                                                   {{ $studentResults[$result->id]['competency_type_id'] == $notCompetentType->id ? 'checked' : '' }}
+                                                   class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
+                                        @endif
+                                    </td>
+                                    
+                                    <!-- Absent Radio Button -->
+                                    <td class="w-20 px-6 py-4 whitespace-nowrap text-center">
+                                        @php
+                                            $absentType = $competencyTypes->where('name', 'Absent')->first();
+                                        @endphp
+                                        @if($absentType)
+                                            <input type="radio"
+                                                   name="result_{{ $result->id }}"
+                                                   wire:click="updateCompetencyType({{ $result->id }}, {{ $absentType->id }})"
+                                                   {{ $studentResults[$result->id]['competency_type_id'] == $absentType->id ? 'checked' : '' }}
+                                                   class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300">
+                                        @endif
+                                    </td>
+                                    
+                                    <!-- Remarks Column -->
+                                    <td class="flex-1 px-6 py-4">
+                                        <input type="text"
+                                               wire:model="studentResults.{{ $result->id }}.remarks"
+                                               placeholder="Add remarks..."
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            @if($isSaved)
+                <div class="px-6 py-4 bg-green-50 border-t border-green-200">
+                    <div class="flex items-center">
+                        <x-icon name="check-circle" style="fas" class="h-5 w-5 text-green-500 mr-2" />
+                        <span class="text-sm text-green-700">Results have been saved successfully!</span>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>

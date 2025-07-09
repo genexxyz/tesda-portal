@@ -20,6 +20,13 @@
             "icon": "clipboard-list",
             "icon_style": "fas",
             "active_routes": ["program-head.assessments"]
+        },
+        {
+            "label": "View Results",
+            "route": "program-head.view-results",
+            "icon": "clipboard-check",
+            "icon_style": "fas",
+            "active_routes": ["program-head.view-results"]
         }
     ]
 }

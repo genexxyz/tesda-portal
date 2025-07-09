@@ -46,6 +46,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', ProgramHeadDashboard::class)->name('dashboard');
         Route::get('/students', \App\Livewire\Pages\ProgramHead\Students::class)->name('students');
         Route::get('/assessments', \App\Livewire\Pages\ProgramHead\Assessments::class)->name('assessments');
+        Route::get('/submit-results/{assessment}', \App\Livewire\Pages\ProgramHead\SubmitResults::class)->name('submit-results');
+        Route::get('/view-results', \App\Livewire\Pages\ProgramHead\ViewResults::class)->name('view-results');
+    });
+
+    //TesdaFocal routes
+    Route::middleware('role:tesda-focal')->prefix('tesda-focal')->name('tesda-focal.')->group(function () {
+        Route::get('/dashboard', \App\Livewire\Pages\TesdaFocal\TesdaFocalDashboard::class)->name('dashboard');
+        Route::get('/view-results', \App\Livewire\Pages\TesdaFocal\ViewResults::class)->name('view-results');
     });
 
     Route::post('/logout', function () {

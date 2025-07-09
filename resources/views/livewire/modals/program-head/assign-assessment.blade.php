@@ -257,7 +257,7 @@
                                 <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm">
                                     <div>
                                         <dt class="font-medium text-gray-500">Exam Type:</dt>
-                                        <dd class="text-gray-900">{{ $examTypes->firstWhere('id', $examTypeId)->name ?? 'Not selected' }}</dd>
+                                        <dd class="text-gray-900">{{ $examTypes->firstWhere('id', $examTypeId)->type ?? 'Not selected' }}</dd>
                                     </div>
                                     <div>
                                         <dt class="font-medium text-gray-500">Course:</dt>
@@ -316,7 +316,7 @@
                                         @endphp
                                         @if($student)
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                {{ $student->name }}
+                                                {{ $student->user->name }}
                                             </span>
                                         @endif
                                     @endforeach

@@ -11,7 +11,7 @@ class Result extends Model
         'student_id',
         'competency_type_id',
         'remarks',
-
+'created_by'
     ];
 
     public function assessment()

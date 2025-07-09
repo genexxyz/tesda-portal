@@ -9,7 +9,7 @@
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <!-- Header Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
             <div class="bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center">
@@ -18,8 +18,8 @@
                         </div>
                         <div class="ml-5 w-0 flex-1">
                             <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Total Assessments</dt>
-                                <dd class="text-lg font-medium text-gray-900">{{ $assessments->total() }}</dd>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['total'] }}</dd>
                             </dl>
                         </div>
                     </div>
@@ -35,27 +35,7 @@
                         <div class="ml-5 w-0 flex-1">
                             <dl>
                                 <dt class="text-sm font-medium text-gray-500 truncate">Upcoming</dt>
-                                <dd class="text-lg font-medium text-gray-900">
-                                    {{ $assessments->where('assessment_date', '>', now())->count() }}
-                                </dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <x-icon name="calendar-check" style="fas" class="h-8 w-8 text-green-600" />
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Completed</dt>
-                                <dd class="text-lg font-medium text-gray-900">
-                                    {{ $assessments->where('assessment_date', '<', now())->count() }}
-                                </dd>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['upcoming'] }}</dd>
                             </dl>
                         </div>
                     </div>
@@ -71,9 +51,55 @@
                         <div class="ml-5 w-0 flex-1">
                             <dl>
                                 <dt class="text-sm font-medium text-gray-500 truncate">Today</dt>
-                                <dd class="text-lg font-medium text-gray-900">
-                                    {{ $assessments->filter(fn($a) => $a->assessment_date?->isToday())->count() }}
-                                </dd>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['today'] }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <x-icon name="calendar-check" style="fas" class="h-8 w-8 text-green-600" />
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Completed</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['completed'] }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <x-icon name="certificate" style="fas" class="h-8 w-8 text-indigo-600" />
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">ISA</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['isa'] }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <x-icon name="book" style="fas" class="h-8 w-8 text-red-600" />
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Mandatory</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $stats['mandatory'] }}</dd>
                             </dl>
                         </div>
                     </div>
@@ -101,25 +127,28 @@
                     :options="$courses" />
             </div>
 
-            <!-- Campus Filter -->
+            <!-- Assessment Type Filter -->
             <div>
                 <x-inputs.filter-select 
-                    id="campusFilter"
-                    wire:model.live="campusFilter"
-                    placeholder="All Campuses"
-                    icon="building"
-                    :options="$campuses" />
+                    id="assessmentTypeFilter"
+                    wire:model.live="assessmentTypeFilter"
+                    placeholder="All Types"
+                    icon="certificate"
+                    :options="[
+                        ['id' => 'ISA', 'name' => 'ISA'],
+                        ['id' => 'MANDATORY', 'name' => 'Mandatory']
+                    ]" />
             </div>
 
-            <!-- Academic Year Filter -->
+            <!-- Date Filter -->
             <div>
                 <x-inputs.filter-select 
-                    id="academicYearFilter"
-                    wire:model.live="academicYearFilter"
-                    placeholder="All Academic Years"
+                    id="dateFilter"
+                    wire:model.live="dateFilter"
+                    placeholder="All Dates"
                     icon="calendar"
-                    :options="$academicYears"
-                    textField="description" />
+                    :options="$assessmentDates"
+                    valueField="value" />
             </div>
 
             <!-- Status Filter -->
@@ -138,7 +167,7 @@
         </div>
 
         <!-- Active Filters Display -->
-        @if($search || $courseFilter || $campusFilter || $academicYearFilter || $statusFilter)
+        @if($search || $courseFilter || $assessmentTypeFilter || $dateFilter || $statusFilter)
             <div class="mb-4">
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="text-sm font-medium text-gray-700">Active filters:</span>
@@ -163,21 +192,21 @@
                         </span>
                     @endif
 
-                    @if($campusFilter)
+                    @if($assessmentTypeFilter)
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                            <x-icon name="building" style="fas" class="w-3 h-3 mr-1" />
-                            Campus: {{ $campuses->firstWhere('id', $campusFilter)?->name }}
-                            <button wire:click="$set('campusFilter', '')" class="ml-2 text-purple-600 hover:text-purple-800">
+                            <x-icon name="certificate" style="fas" class="w-3 h-3 mr-1" />
+                            Type: {{ $assessmentTypeFilter }}
+                            <button wire:click="$set('assessmentTypeFilter', '')" class="ml-2 text-purple-600 hover:text-purple-800">
                                 <x-icon name="times" style="fas" class="w-3 h-3" />
                             </button>
                         </span>
                     @endif
 
-                    @if($academicYearFilter)
+                    @if($dateFilter)
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                             <x-icon name="calendar" style="fas" class="w-3 h-3 mr-1" />
-                            AY: {{ $academicYears->firstWhere('id', $academicYearFilter)?->description }}
-                            <button wire:click="$set('academicYearFilter', '')" class="ml-2 text-orange-600 hover:text-orange-800">
+                            Date: {{ date('M j, Y', strtotime($dateFilter)) }}
+                            <button wire:click="$set('dateFilter', '')" class="ml-2 text-orange-600 hover:text-orange-800">
                                 <x-icon name="times" style="fas" class="w-3 h-3" />
                             </button>
                         </span>
@@ -206,7 +235,7 @@
         <!-- Table with Loading State -->
         <div class="relative">
             <!-- Loading Overlay -->
-            <div wire:loading.delay wire:target="search,courseFilter,campusFilter,academicYearFilter,statusFilter" 
+            <div wire:loading.delay wire:target="search,courseFilter,assessmentTypeFilter,dateFilter,statusFilter" 
                  class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-lg">
                 <div class="flex items-center space-x-2">
                     <x-icon name="spinner" style="fas" class="w-5 h-5 text-primary animate-spin" />
@@ -218,7 +247,7 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <x-tables.table-header>Assessment Details</x-tables.table-header>
-                        <x-tables.table-header>Course & Campus</x-tables.table-header>
+                        <x-tables.table-header>Course</x-tables.table-header>
                         <x-tables.table-header>Qualification</x-tables.table-header>
                         <x-tables.table-header>Assessment Date</x-tables.table-header>
                         <x-tables.table-header>Assessor</x-tables.table-header>
@@ -233,13 +262,13 @@
                             <x-tables.table-cell>
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-10 w-10">
-                                        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                                            <x-icon name="clipboard-list" style="fas" class="w-5 h-5 text-indigo-600" />
+                                        <div class="h-10 w-10 rounded-full {{ $assessment->examType?->type === 'ISA' ? 'bg-indigo-100' : 'bg-red-100' }} flex items-center justify-center">
+                                            <x-icon name="{{ $assessment->examType?->type === 'ISA' ? 'certificate' : 'exclamation-triangle' }}" style="fas" class="w-5 h-5 {{ $assessment->examType?->type === 'ISA' ? 'text-indigo-600' : 'text-red-600' }}" />
                                         </div>
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900">
-                                            {{ $assessment->examType?->type ? ucfirst($assessment->examType->type) : 'N/A' }}
+                                            {{ $assessment->examType?->type ?? 'N/A' }}
                                         </div>
                                         <div class="text-sm text-gray-500">
                                             {{ $assessment->assessmentCenter?->name }}
@@ -249,7 +278,7 @@
                             </x-tables.table-cell>
                             <x-tables.table-cell>
                                 <div class="text-sm text-gray-900">{{ $assessment->course?->name }}</div>
-                                <div class="text-sm text-gray-500">{{ $assessment->campus?->name }}</div>
+                                <div class="text-sm text-gray-500">{{ $assessment->course?->code }}</div>
                             </x-tables.table-cell>
                             <x-tables.table-cell>
                                 <div class="text-sm text-gray-900">{{ $assessment->qualificationType?->name }}</div>
@@ -293,21 +322,28 @@
                                 @endif
                             </x-tables.table-cell>
                             <x-tables.table-cell>
-                                <div class="flex items-center space-x-2">
-                                    <button wire:click="$dispatch('openModal', { component: 'modals.program-head.view-assessment-details', arguments: { assessmentId: {{ $assessment->id }} } })"
-                                            class="text-blue-600 hover:text-blue-900 text-sm font-medium">
-                                        <x-icon name="eye" style="fas" class="w-4 h-4 mr-1" />
-                                        View
-                                    </button>
-                                    @if($isUpcoming)
-                                        <button wire:click="$dispatch('openModal', { component: 'modals.program-head.edit-assessment', arguments: { assessmentId: {{ $assessment->id }} } })"
-                                                class="text-green-600 hover:text-green-900 text-sm font-medium">
-                                            <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
-                                            Edit
-                                        </button>
-                                    @endif
-                                </div>
-                            </x-tables.table-cell>
+    <div class="flex items-center space-x-2">
+        <button wire:click="$dispatch('openModal', { component: 'modals.program-head.view-assessment-details', arguments: { assessmentId: {{ $assessment->id }} } })"
+                class="text-blue-600 hover:text-blue-900 text-sm font-medium">
+            <x-icon name="eye" style="fas" class="w-4 h-4 mr-1" />
+            View
+        </button>
+        @if($isUpcoming)
+            <button wire:click="$dispatch('openModal', { component: 'modals.program-head.edit-assessment', arguments: { assessmentId: {{ $assessment->id }} } })"
+                    class="text-green-600 hover:text-green-900 text-sm font-medium">
+                <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
+                Edit
+            </button>
+        @endif
+        @if($isToday || $isCompleted)
+            <a wire:navigate href="{{ route('program-head.submit-results', $assessment->id) }}"
+               class="text-purple-600 hover:text-purple-900 text-sm font-medium">
+                <x-icon name="clipboard-check" style="fas" class="w-4 h-4 mr-1" />
+                Results
+            </a>
+        @endif
+    </div>
+</x-tables.table-cell>
                         </x-tables.table-row>
                     @endforeach
                 </tbody>

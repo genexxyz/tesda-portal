@@ -8,9 +8,12 @@ class CompetencyType extends Model
 {
     
     protected $fillable = [
-        'name',
+        'name', // 1. Competent, 2. Not Yet Competent, 3. Absent, 4. Dropped
         'description',
     ];
 
-    
+    public function results()
+    {
+        return $this->hasMany(Result::class);
+    }
 }

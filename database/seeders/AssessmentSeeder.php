@@ -38,14 +38,16 @@ class AssessmentSeeder extends Seeder
         ]);
 
         CompetencyType::create([
+            'name' => 'Absent',
+            'description' => 'Student was absent during assessment',
+        ]);
+
+        CompetencyType::create([
             'name' => 'Dropped',
             'description' => 'Student has dropped from the assessment',
         ]);
 
-        CompetencyType::create([
-            'name' => 'Absent',
-            'description' => 'Student was absent during assessment',
-        ]);
+        
 
         // Create Assessment Centers
         AssessmentCenter::create([

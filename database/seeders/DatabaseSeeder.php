@@ -93,5 +93,15 @@ class DatabaseSeeder extends Seeder
             'campus_id' => Campus::where('code', 'MA')->value('id'),
             'role_id' => Role::where('name', 'program-head')->value('id'),
         ]);
+
+        User::create([
+            'last_name' => 'Tesda Focal',
+            'first_name' => 'User',
+            'middle_name' => '',
+            'email' => 'tesda-focal@bpc.edu.ph',
+            'password' => bcrypt('password'),
+            'campus_id' => null,
+            'role_id' => Role::where('name', 'tesda-focal')->value('id'),
+        ]);
     }
 }

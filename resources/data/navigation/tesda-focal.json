@@ -1,0 +1,18 @@
+{
+    "navigation": [
+        {
+            "label": "Dashboard",
+            "route": "tesda-focal.dashboard",
+            "icon": "dashboard",
+            "icon_style": "fas",
+            "active_routes": ["tesda-focal.dashboard"]
+        },
+        {
+            "label": "View Results",
+            "route": "tesda-focal.view-results",
+            "icon": "clipboard-check",
+            "icon_style": "fas",
+            "active_routes": ["tesda-focal.view-results"]
+        }
+    ]
+}
