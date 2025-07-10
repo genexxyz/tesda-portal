@@ -77,23 +77,30 @@ return new class extends Migration
             $table->foreignId('course_id')->constrained('courses')->restrictOnDelete();
             $table->foreignId('academic_year_id')->constrained('academics')->restrictOnDelete();
 
-            $table->foreignId('assessment_center_id')->constrained('assessment_centers')->restrictOnDelete();
-            $table->foreignId('assessor_id')->constrained('assessors')->restrictOnDelete();
-            $table->date('assessment_date');
             $table->timestamps();
             $table->foreignId('created_by')->constrained('users')->restrictOnDelete();
             $table->string('status');
         });
 
+        Schema::create('assessment_schedules', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('assessment_id')->constrained('assessments')->restrictOnDelete();
+            $table->foreignId('assessment_center_id')->constrained('assessment_centers')->restrictOnDelete();
+            $table->foreignId('assessor_id')->constrained('assessors')->restrictOnDelete();
+            $table->date('assessment_date');
+            $table->timestamps();
+            $table->unique(['assessment_id', 'assessment_date', 'assessment_center_id', 'assessor_id'], 'unique_assessment_schedule');
+        });
+
 
         Schema::create('results', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('assessment_id')->constrained('assessments')->restrictOnDelete();
+            $table->foreignId('assessment_schedule_id')->constrained('assessment_schedules')->restrictOnDelete();
             $table->foreignId('student_id')->constrained('students')->restrictOnDelete();
             $table->foreignId('competency_type_id')->nullable()->constrained('competency_types')->restrictOnDelete(); //will be used to store the result of the assessment (Competent, Not Yet Competent, Dropped, Absent) after the assessment date
             $table->text('remarks')->nullable();
             $table->timestamps();
-            $table->unique(['assessment_id', 'student_id']);
+            $table->unique(['assessment_schedule_id', 'student_id']);
 
         });
     }
@@ -111,6 +118,7 @@ return new class extends Migration
         Schema::dropIfExists('assessors');
         Schema::dropIfExists('assessor_centers');
         Schema::dropIfExists('assessments');
+        Schema::dropIfExists('assessment_schedules');
         Schema::dropIfExists('results');
     }
 };

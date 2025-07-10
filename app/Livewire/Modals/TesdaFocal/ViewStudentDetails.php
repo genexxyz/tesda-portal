@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Modals\ProgramHead;
+namespace App\Livewire\Modals\TesdaFocal;
 
 use App\Models\Student;
 use LivewireUI\Modal\ModalComponent;
@@ -25,7 +25,7 @@ class ViewStudentDetails extends ModalComponent
 
     public function render()
     {
-        return view('livewire.modals.program-head.view-student-details');
+        return view('livewire.modals.tesda-focal.view-student-details');
     }
 
     public static function modalMaxWidth(): string

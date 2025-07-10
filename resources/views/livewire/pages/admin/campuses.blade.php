@@ -22,7 +22,9 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @foreach($campuses as $campus)
                     <x-tables.table-row wire:key="campus-{{ $campus->id }}">
-                        <x-tables.table-cell class="w-2"></x-tables.table-cell>
+                        <x-tables.table-cell class="w-2">
+                            {{ $loop->iteration }}
+                        </x-tables.table-cell>
                         <x-tables.table-cell>
                             <span class="font-medium text-gray-900">{{ $campus->code }}</span>
                         </x-tables.table-cell>

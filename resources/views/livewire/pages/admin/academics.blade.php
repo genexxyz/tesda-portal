@@ -19,7 +19,9 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @foreach($academicYear as $year)
                     <x-tables.table-row>
-                        <x-tables.table-cell class="w-2"></x-tables.table-cell>
+                        <x-tables.table-cell class="w-2">
+                            {{ $loop->iteration }}
+                        </x-tables.table-cell>
                         <x-tables.table-cell>{{ $year->start_year }} - {{ $year->end_year }}</x-tables.table-cell>
                         <x-tables.table-cell>{{ $year->semester }}</x-tables.table-cell>
                         <x-tables.table-cell>@if (
@@ -31,7 +33,12 @@
 
                             @endif</x-tables.table-cell>
                         <x-tables.table-cell>
-                            <button class="text-blue-600 hover:text-blue-900">Edit</button>
+                            <button 
+                                wire:click="$dispatch('openModal', { component: 'modals.admin.edit-academic', arguments: { academicId: {{ $year->id }} } })"
+                                class="text-blue-600 hover:text-blue-900 text-sm font-medium">
+                                <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
+                                Edit
+                            </button>
                         </x-tables.table-cell>
                     </x-tables.table-row>
                 @endforeach

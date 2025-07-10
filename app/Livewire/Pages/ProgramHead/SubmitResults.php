@@ -43,10 +43,10 @@ class SubmitResults extends Component
             'academicYear', 
             'qualificationType', 
             'examType', 
-            'assessmentCenter', 
-            'assessor',
-            'results.student.user',
-            'results.competencyType'
+            'schedules.assessmentCenter', 
+            'schedules.assessor',
+            'schedules.results.student.user',
+            'schedules.results.competencyType'
         ]);
 
         $this->initializeResults();
@@ -54,12 +54,14 @@ class SubmitResults extends Component
 
     public function initializeResults()
     {
-        // Initialize results for each student
-        foreach ($this->assessment->results as $result) {
-            $this->studentResults[$result->id] = [
-                'competency_type_id' => $result->competency_type_id,
-                'remarks' => $result->remarks ?? ''
-            ];
+        // Initialize results for each student from all schedules
+        foreach ($this->assessment->schedules as $schedule) {
+            foreach ($schedule->results as $result) {
+                $this->studentResults[$result->id] = [
+                    'competency_type_id' => $result->competency_type_id,
+                    'remarks' => $result->remarks ?? ''
+                ];
+            }
         }
     }
 

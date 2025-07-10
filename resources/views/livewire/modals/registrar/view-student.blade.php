@@ -1,9 +1,18 @@
 <div>
     <x-modals.modal-header 
         title="Student Details"
-        subtitle="Comprehensive information for {{ $student->full_name }}" />
-
-    <x-modals.modal-body>
+        subtitle="Comprehensive information for {{ $student->full_n                                            <div>
+                                                <strong>Assessment Date:</strong> 
+                                                {{ $result->assessmentSchedule?->assessment_date ? $result->assessmentSchedule->assessment_date->format('F j, Y') : 'Not specified' }}
+                                            </div>
+                                            <div>
+                                                <strong>Exam Type:</strong> 
+                                                {{ $result->assessmentSchedule?->assessment?->examType?->name ?? 'Not specified' }}
+                                            </div>
+                                            <div>
+                                                <strong>Assessor:</strong> 
+                                                {{ $result->assessmentSchedule?->assessor?->name ?? 'Not specified' }}
+                                            </div>    <x-modals.modal-body>
         <div class="space-y-6">
             <!-- Student Basic Information -->
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
@@ -80,7 +89,7 @@
                         </dd>
                     </div>
                     <div class="md:col-span-2">
-                        <dt class="text-sm font-medium text-gray-500">Available Campuses</dt>
+                        <dt class="text-sm font-medium text-gray-500">Campus</dt>
                         <dd class="text-sm text-gray-900">
                             @if($student->course && $student->course->campuses->isNotEmpty())
                                 <div class="flex flex-wrap gap-2 mt-1">
@@ -120,7 +129,8 @@
                                     <div class="flex-1">
                                         <div class="flex items-center space-x-3 mb-2">
                                             <h4 class="text-sm font-medium text-gray-900">
-                                                {{ $result->assessment?->qualificationType?->name ?? 'Unknown Qualification' }}
+                                                {{ $result->assessment?->qualificationType?->code ?? 'Unknown Qualification' }}
+                                                {{ $result->assessment?->qualificationType->level ?? 'Unknown Level' }}
                                             </h4>
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
                                                 {{ $result->competencyType?->name === 'Competent' ? 'bg-green-100 text-green-800' : 
@@ -132,15 +142,15 @@
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-gray-600">
                                             <div>
                                                 <strong>Assessment Date:</strong> 
-                                                {{ $result->assessmentSchedule?->assessment_date ? $result->assessmentSchedule->assessment_date->format('F j, Y') : 'Not specified' }}
+                                                {{ $result->assessment?->assessment_date ? $result->assessment->assessment_date->format('F j, Y') : 'Not specified' }}
                                             </div>
                                             <div>
                                                 <strong>Exam Type:</strong> 
-                                                {{ $result->assessmentSchedule?->assessment?->examType?->name ?? 'Not specified' }}
+                                                {{ $result->assessment?->examType?->type ?? 'Not specified' }}
                                             </div>
                                             <div>
                                                 <strong>Assessor:</strong> 
-                                                {{ $result->assessmentSchedule?->assessor?->name ?? 'Not specified' }}
+                                                {{ $result->assessment?->assessor?->name ?? 'Not specified' }}
                                             </div>
                                             <div>
                                                 <strong>Assessment Center:</strong> 
@@ -204,9 +214,9 @@
         </x-buttons.secondary-button>
         
         <x-buttons.primary-button 
-            wire:click="$dispatch('openModal', { component: 'modals.program-head.assign-assessment', arguments: { studentId: {{ $student->id }} } })">
-            <x-icon name="clipboard-list" style="fas" class="w-4 h-4 mr-1" />
-            Assign Assessment
+            wire:click="$dispatch('openModal', { component: 'modals.registrar.edit-student', arguments: { studentId: {{ $student->id }} } })">
+            <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
+            Edit Student
         </x-buttons.primary-button>
     </x-modals.modal-footer>
 </div>

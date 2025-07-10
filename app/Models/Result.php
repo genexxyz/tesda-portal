@@ -3,29 +3,47 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Result extends Model
 {
     protected $fillable = [
-        'assessment_id',
+        'assessment_schedule_id',
         'student_id',
         'competency_type_id',
         'remarks',
-'created_by'
+        'created_by'
     ];
 
-    public function assessment()
+    /**
+     * Get the assessment schedule associated with this result
+     */
+    public function assessmentSchedule(): BelongsTo
     {
-        return $this->belongsTo(Assessment::class);
+        return $this->belongsTo(AssessmentSchedule::class);
     }
 
-    public function student()
+    /**
+     * Get the assessment through the schedule (backward compatibility)
+     */
+    public function assessment()
+    {
+        return $this->assessmentSchedule?->assessment();
+    }
+
+    /**
+     * Get the student associated with this result
+     */
+    public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
     }
-    public function competencyType()
+
+    /**
+     * Get the competency type associated with this result
+     */
+    public function competencyType(): BelongsTo
     {
         return $this->belongsTo(CompetencyType::class);
     }
-    
 }

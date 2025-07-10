@@ -202,11 +202,5 @@
         <x-buttons.secondary-button wire:click="closeModal">
             Close
         </x-buttons.secondary-button>
-        
-        <x-buttons.primary-button 
-            wire:click="$dispatch('openModal', { component: 'modals.program-head.assign-assessment', arguments: { studentId: {{ $student->id }} } })">
-            <x-icon name="clipboard-list" style="fas" class="w-4 h-4 mr-1" />
-            Assign Assessment
-        </x-buttons.primary-button>
     </x-modals.modal-footer>
 </div>

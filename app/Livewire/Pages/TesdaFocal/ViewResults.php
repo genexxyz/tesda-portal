@@ -106,8 +106,10 @@ class ViewResults extends Component
             'qualificationType',
             'campus',
             'academicYear',
-            'results.student',
-            'results.competencyType'
+            'schedules.results.student',
+            'schedules.results.competencyType',
+            'schedules.assessmentCenter',
+            'schedules.assessor'
         ]);
 
         // Default to active academic year if no filter is set
@@ -147,26 +149,29 @@ class ViewResults extends Component
         $notYetCompetentCount = 0;
         $absentCount = 0;
         $totalAssessed = 0;
+        $totalStudents = 0;
 
-        foreach ($assessment->results as $result) {
-            if ($result->competency_type_id) {
-                switch ($result->competencyType->name ?? '') {
-                    case 'Competent':
-                        $competentCount++;
-                        $totalAssessed++;
-                        break;
-                    case 'Not Yet Competent':
-                        $notYetCompetentCount++;
-                        $totalAssessed++;
-                        break;
-                    case 'Absent':
-                        $absentCount++;
-                        break;
-                    case 'Dropped':
-                        break;
+        // Process results from all schedules for this assessment
+        foreach ($assessment->schedules as $schedule) {
+            foreach ($schedule->results as $result) {
+                if ($result->competency_type_id && $result->competency_type_id !== 4) { // Exclude Dropped (ID = 4)
+                    $totalStudents++;
+                    switch ($result->competencyType->name ?? '') {
+                        case 'Competent':
+                            $competentCount++;
+                            $totalAssessed++;
+                            break;
+                        case 'Not Yet Competent':
+                            $notYetCompetentCount++;
+                            $totalAssessed++;
+                            break;
+                        case 'Absent':
+                            $absentCount++;
+                            break;
+                    }
+                } else {
+                    $absentCount++;
                 }
-            } else {
-                $absentCount++;
             }
         }
 
@@ -175,7 +180,7 @@ class ViewResults extends Component
             'not_yet_competent' => $notYetCompetentCount,
             'absent' => $absentCount,
             'total_assessed' => $totalAssessed,
-            'total_students' => $assessment->results->count()
+            'total_students' => $totalStudents
         ];
     }
 
@@ -198,7 +203,8 @@ class ViewResults extends Component
                 'absent' => 0,
                 'total_students' => 0,
                 'passing_percentage' => 0
-            ]
+            ],
+            'assessment_count' => 0 // Initialize assessment count
         ];
     }
 
@@ -213,7 +219,8 @@ class ViewResults extends Component
             'not_yet_competent' => 0,
             'absent' => 0,
             'total_students' => 0,
-            'passing_percentage' => 0
+            'passing_percentage' => 0,
+            'assessment_ids' => []
         ];
     }
 
@@ -243,19 +250,17 @@ class ViewResults extends Component
     private function calculatePercentages(array &$resultsData): void
     {
         foreach ($resultsData as &$data) {
-            // Calculate campus percentages
             foreach ($data['campuses'] as &$campus) {
-                $campus['passing_percentage'] = $campus['total_assessed'] > 0 
-                    ? round(($campus['competent'] / $campus['total_assessed']) * 100, 2) 
+                $campus['passing_percentage'] = $campus['total_assessed'] > 0
+                    ? round(($campus['competent'] / $campus['total_assessed']) * 100, 2)
                     : 0;
             }
-            
-            // Calculate total percentage
-            $data['totals']['passing_percentage'] = $data['totals']['total_assessed'] > 0 
-                ? round(($data['totals']['competent'] / $data['totals']['total_assessed']) * 100, 2) 
+
+            $data['totals']['passing_percentage'] = $data['totals']['total_assessed'] > 0
+                ? round(($data['totals']['competent'] / $data['totals']['total_assessed']) * 100, 2)
                 : 0;
         }
-    }
+    } // Closing the calculatePercentages method
 
     public function getResultsDataProperty(): \Illuminate\Support\Collection
     {
@@ -267,33 +272,32 @@ class ViewResults extends Component
 
         foreach ($assessments as $assessment) {
             $campusName = $assessment->campus->name ?? 'Unknown';
-            $key = ($assessment->course->code ?? 'Unknown') . '_' . 
-                   $assessment->qualification_type_id . '_' . 
-                   ($assessment->examType->type ?? 'Unknown');
-            
-            // Initialize result data if not exists
+            // Merge by course, exam type, qualification, and campus only
+            $key = ($assessment->course->code ?? 'Unknown') . '_' .
+                   $assessment->qualification_type_id . '_' .
+                   ($assessment->examType->type ?? 'Unknown') . '_' .
+                   $assessment->campus_id;
+
             if (!isset($resultsData[$key])) {
                 $resultsData[$key] = $this->initializeResultData($assessment);
             }
 
-            // Initialize campus data if not exists
             if (!isset($resultsData[$key]['campuses'][$campusName])) {
                 $resultsData[$key]['campuses'][$campusName] = $this->initializeCampusData();
             }
 
-            // Process assessment results
             $counts = $this->processAssessmentResults($assessment);
-
-            // Update statistics
             $this->updateStatistics($resultsData, $key, $campusName, $counts);
+
+            // Store assessment IDs for this group for filtering in modal
+            $resultsData[$key]['campuses'][$campusName]['assessment_ids'][] = $assessment->id;
+
+            // Increment the assessment count for the group
+            $resultsData[$key]['assessment_count']++;
         }
 
-        // Calculate percentages
         $this->calculatePercentages($resultsData);
-
-        // Sort by course name and group by course
         $sorted = collect($resultsData)->sortBy(['course_name', 'qualification_name', 'exam_type']);
-        
         return $sorted->groupBy('course_name');
     }
 
@@ -329,7 +333,7 @@ class ViewResults extends Component
     public function getOverallStatsProperty(): array
     {
         $results = $this->resultsData;
-        
+
         $totalStudents = 0;
         $totalAssessed = 0;
         $totalCompetent = 0;
@@ -354,9 +358,9 @@ class ViewResults extends Component
                 }
             }
         }
-        
-        $overallPassingRate = $totalAssessed > 0 
-            ? round(($totalCompetent / $totalAssessed) * 100, 2) 
+
+        $overallPassingRate = $totalAssessed > 0
+            ? round(($totalCompetent / $totalAssessed) * 100, 2)
             : 0;
 
         return [
@@ -366,12 +370,64 @@ class ViewResults extends Component
             'total_not_yet_competent' => $totalNotYetCompetent,
             'total_absent' => $totalAbsent,
             'overall_passing_rate' => $overallPassingRate,
-            'assessment_completion_rate' => $totalStudents > 0 
-                ? round(($totalAssessed / $totalStudents) * 100, 2) 
+            'assessment_completion_rate' => $totalStudents > 0
+                ? round(($totalAssessed / $totalStudents) * 100, 2)
                 : 0
         ];
+    } // Closing the getOverallStatsProperty method
+
+    /**
+     * Get assessment ID for view results modal
+     */
+    public function getAssessmentId($courseCode, $qualificationTypeId, $examType, $campusName)
+    {
+        $query = $this->buildAssessmentQuery();
+        $query = $this->applyFilters($query);
+        
+        $assessment = $query->whereHas('course', function($q) use ($courseCode) {
+                $q->where('code', $courseCode);
+            })
+            ->where('qualification_type_id', $qualificationTypeId)
+            ->whereHas('examType', function($q) use ($examType) {
+                $q->where('type', $examType);
+            })
+            ->whereHas('campus', function($q) use ($campusName) {
+                $q->where('name', $campusName);
+            })
+            ->first();
+            
+        return $assessment ? $assessment->id : null;
     }
 
+    
+
+    /**
+     * Get the count of assessments for each group
+     */
+    private function getAssessmentCountForGroup($courseCode, $qualificationName, $examType, $campusName): int
+    {
+        $academicYearId = $this->academicYearFilter ?: Academic::where('is_active', true)->first()?->id;
+        
+        $query = Assessment::whereHas('course', function($q) use ($courseCode) {
+                $q->where('code', $courseCode);
+            })
+            ->whereHas('qualificationType', function($q) use ($qualificationName) {
+                $q->where('name', $qualificationName);
+            })
+            ->whereHas('examType', function($q) use ($examType) {
+                $q->where('type', $examType);
+            })
+            ->whereHas('campus', function($q) use ($campusName) {
+                $q->where('name', $campusName);
+            });
+            
+        if ($academicYearId) {
+            $query->where('academic_year_id', $academicYearId);
+        }
+        
+        return $query->count();
+    }
+    
     public function render()
     {
         return view('livewire.pages.tesda-focal.view-results', [

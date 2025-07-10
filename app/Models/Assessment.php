@@ -12,15 +12,8 @@ class Assessment extends Model
         'campus_id',
         'course_id',
         'academic_year_id',
-        'assessment_center_id',
-        'assessor_id',
-        'assessment_date',
         'created_by',
         'status',
-    ];
-
-    protected $casts = [
-        'assessment_date' => 'date',
     ];
 
 
@@ -49,17 +42,12 @@ class Assessment extends Model
         return $this->belongsTo(Academic::class, 'academic_year_id');
     }
 
-    public function assessor()
-    {
-        return $this->belongsTo(Assessor::class);
-    }
-
     /**
-     * Get the assessment center associated with the assessment.
+     * Get the schedules for this assessment.
      */
-    public function assessmentCenter()
+    public function schedules()
     {
-        return $this->belongsTo(AssessmentCenter::class);
+        return $this->hasMany(AssessmentSchedule::class);
     }
 
     /**
@@ -68,5 +56,53 @@ class Assessment extends Model
     public function results()
     {
         return $this->hasMany(Result::class);
+    }
+    
+    /**
+     * Get the primary schedule for this assessment (backward compatibility)
+     */
+    public function primarySchedule()
+    {
+        return $this->schedules()->latest()->first();
+    }
+    
+    /**
+     * Get the assessor from the primary schedule (backward compatibility)
+     */
+    public function assessor()
+    {
+        return $this->primarySchedule()?->assessor();
+    }
+
+    /**
+     * Get the assessment center from the primary schedule (backward compatibility)
+     */
+    public function assessmentCenter()
+    {
+        return $this->primarySchedule()?->assessmentCenter();
+    }
+    
+    /**
+     * Get the assessment date attribute (backward compatibility)
+     */
+    public function getAssessmentDateAttribute()
+    {
+        return $this->primarySchedule()?->assessment_date;
+    }
+    
+    /**
+     * Get the assessor ID attribute (backward compatibility)
+     */
+    public function getAssessorIdAttribute()
+    {
+        return $this->primarySchedule()?->assessor_id;
+    }
+    
+    /**
+     * Get the assessment center ID attribute (backward compatibility)
+     */
+    public function getAssessmentCenterIdAttribute()
+    {
+        return $this->primarySchedule()?->assessment_center_id;
     }
 }

@@ -263,7 +263,7 @@
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-10 w-10">
                                         <div class="h-10 w-10 rounded-full {{ $assessment->examType?->type === 'ISA' ? 'bg-indigo-100' : 'bg-red-100' }} flex items-center justify-center">
-                                            <x-icon name="{{ $assessment->examType?->type === 'ISA' ? 'certificate' : 'exclamation-triangle' }}" style="fas" class="w-5 h-5 {{ $assessment->examType?->type === 'ISA' ? 'text-indigo-600' : 'text-red-600' }}" />
+                                            <x-icon name="{{ $assessment->examType?->type === 'ISA' ? 'certificate' : 'book' }}" style="fas" class=" {{ $assessment->examType?->type === 'ISA' ? 'text-indigo-600' : 'text-red-600' }}" />
                                         </div>
                                     </div>
                                     <div class="ml-4">
@@ -277,12 +277,12 @@
                                 </div>
                             </x-tables.table-cell>
                             <x-tables.table-cell>
-                                <div class="text-sm text-gray-900">{{ $assessment->course?->name }}</div>
-                                <div class="text-sm text-gray-500">{{ $assessment->course?->code }}</div>
+                            
+                                <div class="text-sm text-gray-900">{{ $assessment->course?->code }}</div>
                             </x-tables.table-cell>
                             <x-tables.table-cell>
-                                <div class="text-sm text-gray-900">{{ $assessment->qualificationType?->name }}</div>
-                                <div class="text-sm text-gray-500">{{ $assessment->qualificationType?->level }}</div>
+                                <div class="text-sm text-gray-900">{{ $assessment->qualificationType?->code }} - {{ $assessment->qualificationType?->level }}</div>
+                                
                             </x-tables.table-cell>
                             <x-tables.table-cell>
                                 <div class="text-sm text-gray-900">
@@ -300,9 +300,10 @@
                             </x-tables.table-cell>
                             <x-tables.table-cell>
                                 @php
-                                    $isUpcoming = $assessment->assessment_date?->isFuture();
-                                    $isToday = $assessment->assessment_date?->isToday();
-                                    $isCompleted = $assessment->assessment_date?->isPast();
+                                    $latestSchedule = $assessment->schedules->sortByDesc('assessment_date')->first();
+                                    $isUpcoming = $latestSchedule && $latestSchedule->assessment_date?->isFuture();
+                                    $isToday = $latestSchedule && $latestSchedule->assessment_date?->isToday();
+                                    $isCompleted = $latestSchedule && $latestSchedule->assessment_date?->isPast();
                                 @endphp
                                 @if($isToday)
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -322,15 +323,15 @@
                                 @endif
                             </x-tables.table-cell>
                             <x-tables.table-cell>
-    <div class="flex items-center space-x-2">
+    <div class="flex items-center space-x-2 w-35">
         <button wire:click="$dispatch('openModal', { component: 'modals.program-head.view-assessment-details', arguments: { assessmentId: {{ $assessment->id }} } })"
-                class="text-blue-600 hover:text-blue-900 text-sm font-medium">
+                class="text-blue-600 hover:text-blue-900 text-sm font-medium cursor-pointer">
             <x-icon name="eye" style="fas" class="w-4 h-4 mr-1" />
             View
         </button>
         @if($isUpcoming)
             <button wire:click="$dispatch('openModal', { component: 'modals.program-head.edit-assessment', arguments: { assessmentId: {{ $assessment->id }} } })"
-                    class="text-green-600 hover:text-green-900 text-sm font-medium">
+                    class="text-green-600 hover:text-green-900 text-sm font-medium cursor-pointer">
                 <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
                 Edit
             </button>
@@ -338,7 +339,7 @@
         @if($isToday || $isCompleted)
             <a wire:navigate href="{{ route('program-head.submit-results', $assessment->id) }}"
                class="text-purple-600 hover:text-purple-900 text-sm font-medium">
-                <x-icon name="clipboard-check" style="fas" class="w-4 h-4 mr-1" />
+                <x-icon name="clipboard-check" style="fas" />
                 Results
             </a>
         @endif

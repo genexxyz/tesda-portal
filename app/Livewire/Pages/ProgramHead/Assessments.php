@@ -54,23 +54,28 @@ class Assessments extends Component
         $managedCourseIds = $this->courses->pluck('id');
         $programHeadCampusId = Auth::user()->campus_id;
         
-        return Assessment::whereIn('course_id', $managedCourseIds)
+        $assessments = Assessment::whereIn('course_id', $managedCourseIds)
             ->where('campus_id', $programHeadCampusId)
             ->whereHas('academicYear', function($query) {
                 $query->where('is_active', true);
             })
-            ->distinct()
-            ->orderBy('assessment_date', 'desc')
-            ->pluck('assessment_date')
-            ->map(function($date) {
-                return [
-                    'id' => $date->format('Y-m-d'),
-                    'name' => $date->format('F j, Y'),
-                    'value' => $date->format('Y-m-d')
-                ];
-            })
-            ->unique('id')
-            ->values();
+            ->with('schedules')
+            ->get();
+            
+        $dates = collect();
+        foreach ($assessments as $assessment) {
+            foreach ($assessment->schedules as $schedule) {
+                if ($schedule->assessment_date) {
+                    $dates->push([
+                        'id' => $schedule->assessment_date->format('Y-m-d'),
+                        'name' => $schedule->assessment_date->format('F j, Y'),
+                        'value' => $schedule->assessment_date->format('Y-m-d')
+                    ]);
+                }
+            }
+        }
+        
+        return $dates->unique('id')->sortByDesc('id')->values();
     }
 
     #[On('assessment-assigned')]
@@ -85,14 +90,21 @@ class Assessments extends Component
         $managedCourseIds = $this->courses->pluck('id');
         $programHeadCampusId = Auth::user()->campus_id;
 
-        $query = Assessment::with(['course', 'campus', 'academicYear', 'qualificationType', 'examType', 'assessmentCenter', 'assessor', 'results.student.user'])
+        $query = Assessment::with([
+                'course', 
+                'campus', 
+                'academicYear', 
+                'qualificationType', 
+                'examType', 
+                'schedules.assessmentCenter', 
+                'schedules.assessor', 
+                'schedules.results.student.user'
+            ])
             ->whereIn('course_id', $managedCourseIds)
             ->where('campus_id', $programHeadCampusId) // Only show assessments from program head's campus
             ->whereHas('academicYear', function($q) {
                 $q->where('is_active', true); // Only show assessments from active academic year
-            });
-
-        // Apply search filter
+            });                // Apply search filter
         if ($this->search) {
             $query->where(function ($q) {
                 $q->whereHas('course', function ($subQ) {
@@ -103,7 +115,7 @@ class Assessments extends Component
                     $subQ->where('name', 'like', '%' . $this->search . '%')
                          ->orWhere('code', 'like', '%' . $this->search . '%');
                 })
-                ->orWhereHas('assessor', function ($subQ) {
+                ->orWhereHas('schedules.assessor', function ($subQ) {
                     $subQ->where('name', 'like', '%' . $this->search . '%');
                 });
             });
@@ -123,36 +135,64 @@ class Assessments extends Component
 
         // Apply date filter
         if ($this->dateFilter) {
-            $query->whereDate('assessment_date', $this->dateFilter);
+            $query->whereHas('schedules', function($q) {
+                $q->whereDate('assessment_date', $this->dateFilter);
+            });
         }
 
         // Apply status filter
         if ($this->statusFilter) {
             $currentDate = now();
             if ($this->statusFilter === 'upcoming') {
-                $query->where('assessment_date', '>', $currentDate);
+                $query->whereHas('schedules', function($q) use ($currentDate) {
+                    $q->where('assessment_date', '>', $currentDate);
+                });
             } elseif ($this->statusFilter === 'completed') {
-                $query->where('assessment_date', '<', $currentDate);
+                $query->whereHas('schedules', function($q) use ($currentDate) {
+                    $q->where('assessment_date', '<', $currentDate);
+                });
             } elseif ($this->statusFilter === 'today') {
-                $query->whereDate('assessment_date', $currentDate);
+                $query->whereHas('schedules', function($q) use ($currentDate) {
+                    $q->whereDate('assessment_date', $currentDate);
+                });
             }
         }
 
-        $assessments = $query->orderBy('assessment_date', 'desc')->paginate(10);
+        $assessments = $query->with('schedules')->orderBy('created_at', 'desc')->paginate(10);
 
         // Get stats for the current filtered results
-        $allAssessments = Assessment::whereIn('course_id', $managedCourseIds)
+        $allAssessments = Assessment::with('schedules')
+            ->whereIn('course_id', $managedCourseIds)
             ->where('campus_id', $programHeadCampusId)
             ->whereHas('academicYear', function($q) {
                 $q->where('is_active', true);
             })
             ->get();
 
+        // Count upcoming, completed and today's assessments based on schedules
+        $currentDate = now();
+        $upcoming = 0;
+        $completed = 0;
+        $today = 0;
+
+        foreach ($allAssessments as $assessment) {
+            $latestSchedule = $assessment->schedules()->latest()->first();
+            if ($latestSchedule) {
+                if ($latestSchedule->assessment_date > $currentDate) {
+                    $upcoming++;
+                } elseif ($latestSchedule->assessment_date < $currentDate) {
+                    $completed++;
+                } elseif ($latestSchedule->assessment_date instanceof \Carbon\Carbon && $latestSchedule->assessment_date->isToday()) {
+                    $today++;
+                }
+            }
+        }
+
         $stats = [
             'total' => $allAssessments->count(),
-            'upcoming' => $allAssessments->where('assessment_date', '>', now())->count(),
-            'completed' => $allAssessments->where('assessment_date', '<', now())->count(),
-            'today' => $allAssessments->filter(fn($a) => $a->assessment_date?->isToday())->count(),
+            'upcoming' => $upcoming,
+            'completed' => $completed,
+            'today' => $today,
             'isa' => $allAssessments->filter(fn($a) => $a->examType?->type === 'ISA')->count(),
             'mandatory' => $allAssessments->filter(fn($a) => $a->examType?->type === 'MANDATORY')->count(),
         ];

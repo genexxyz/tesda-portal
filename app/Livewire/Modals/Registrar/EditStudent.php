@@ -1,0 +1,169 @@
+<?php
+
+namespace App\Livewire\Modals\Registrar;
+
+use App\Models\Student;
+use App\Models\Course;
+use App\Models\Academic;
+use App\Models\User;
+use LivewireUI\Modal\ModalComponent;
+use Livewire\Attributes\Rule;
+use Illuminate\Support\Facades\Auth;
+
+class EditStudent extends ModalComponent
+{
+    public $studentId;
+    public $student;
+
+    // Student fields
+    #[Rule('nullable|string|max:255')]
+    public $student_id = '';
+
+    #[Rule('nullable|string|max:255')]
+    public $uli = '';
+
+    #[Rule('required|exists:courses,id')]
+    public $course_id = '';
+
+    #[Rule('required|exists:academics,id')]
+    public $academic_year_id = '';
+
+    // User fields
+    #[Rule('required|string|max:255')]
+    public $first_name = '';
+
+    #[Rule('nullable|string|max:255')]
+    public $middle_name = '';
+
+    #[Rule('required|string|max:255')]
+    public $last_name = '';
+
+    #[Rule('required|email')]
+    public $email = '';
+
+    public function mount($studentId)
+    {
+        $this->studentId = $studentId;
+        $this->student = Student::with(['user', 'course', 'academicYear'])->findOrFail($studentId);
+        
+        // Load student data
+        $this->student_id = $this->student->student_id;
+        $this->uli = $this->student->uli;
+        $this->course_id = $this->student->course_id;
+        $this->academic_year_id = $this->student->academic_year_id;
+        
+        // Load user data
+        if ($this->student->user) {
+            $this->first_name = $this->student->user->first_name;
+            $this->middle_name = $this->student->user->middle_name;
+            $this->last_name = $this->student->user->last_name;
+            $this->email = $this->student->user->email;
+        }
+    }
+
+    public function rules()
+    {
+        $emailRule = 'required|email';
+        if ($this->student->user_id) {
+            $emailRule .= '|unique:users,email,' . $this->student->user_id;
+        }
+
+        $studentIdRule = 'nullable|string|max:255';
+        if ($this->student_id) {
+            $studentIdRule .= '|unique:students,student_id,' . $this->studentId;
+        }
+
+        $uliRule = 'nullable|string|max:255';
+        if ($this->uli) {
+            $uliRule .= '|unique:students,uli,' . $this->studentId;
+        }
+
+        return [
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => $emailRule,
+            'student_id' => $studentIdRule,
+            'uli' => $uliRule,
+            'course_id' => 'required|exists:courses,id',
+            'academic_year_id' => 'required|exists:academics,id',
+        ];
+    }
+
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName);
+    }
+
+    public function save()
+    {
+        $this->validate();
+
+        try {
+            // Update user information
+            if ($this->student->user) {
+                $this->student->user->update([
+                    'first_name' => ucfirst(strtolower($this->first_name)),
+                    'middle_name' => $this->middle_name ? ucfirst(strtolower($this->middle_name)) : null,
+                    'last_name' => ucfirst(strtolower($this->last_name)),
+                    'email' => strtolower($this->email),
+                ]);
+            } else {
+                // Create user if doesn't exist
+                $user = User::create([
+                    'first_name' => ucfirst(strtolower($this->first_name)),
+                    'middle_name' => $this->middle_name ? ucfirst(strtolower($this->middle_name)) : null,
+                    'last_name' => ucfirst(strtolower($this->last_name)),
+                    'email' => strtolower($this->email),
+                    'password' => bcrypt('defaultpassword'), // Should be changed
+                    'role_id' => 1, // Student role
+                    'status' => 'active',
+                ]);
+                
+                $this->student->update(['user_id' => $user->id]);
+            }
+
+            // Update student information
+            $this->student->update([
+                'student_id' => $this->student_id,
+                'uli' => $this->uli,
+                'course_id' => $this->course_id,
+                'academic_year_id' => $this->academic_year_id,
+            ]);
+
+            $this->dispatch('swal:success', [
+                'title' => 'Success!',
+                'text' => 'Student updated successfully!',
+            ]);
+
+            $this->dispatch('student-updated');
+            $this->closeModal();
+
+        } catch (\Exception $e) {
+            $this->dispatch('swal:error', [
+                'title' => 'Error!',
+                'text' => 'Something went wrong. Please try again.',
+            ]);
+        }
+    }
+
+    public function render()
+    {
+        $registrarCampusId = Auth::user()->campus_id;
+        
+        // Get courses for the registrar's campus only
+        $campusCourses = Course::whereHas('campuses', function($query) use ($registrarCampusId) {
+            $query->where('campuses.id', $registrarCampusId);
+        })->orderBy('code', 'asc')->get();
+
+        return view('livewire.modals.registrar.edit-student', [
+            'courses' => $campusCourses,
+            'academicYears' => Academic::orderBy('start_year', 'desc')->get()
+        ]);
+    }
+
+    public static function modalMaxWidth(): string
+    {
+        return 'lg';
+    }
+}

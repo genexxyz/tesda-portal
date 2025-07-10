@@ -151,7 +151,7 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <x-icon name="certificate" style="fas" class="h-8 w-8 text-green-600" />
+                            <x-icon name="circle-check" style="fas" class="h-8 w-8 text-green-600" />
                         </div>
                         <div class="ml-5 w-0 flex-1">
                             <dl>
@@ -243,6 +243,7 @@
                                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Not Yet Competent</th>
                                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">No Assessment Yet / Absent</th>
                                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Students</th>
+                                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -273,6 +274,61 @@
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">{{ number_format($campusData['total_students']) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                                @php
+                                                    // Extract qualification type ID from data
+                                                    $academicYearId = $this->academicYearFilter ?: App\Models\Academic::where('is_active', true)->first()?->id;
+                                                    $firstAssessment = App\Models\Assessment::whereHas('course', function($q) use ($data) {
+                                                            $q->where('code', $data['course_code']);
+                                                        })
+                                                        ->whereHas('qualificationType', function($q) use ($data) {
+                                                            $q->where('name', $data['qualification_name']);
+                                                        })
+                                                        ->whereHas('examType', function($q) use ($data) {
+                                                            $q->where('type', $data['exam_type']);
+                                                        })
+                                                        ->whereHas('campus', function($q) use ($campusName) {
+                                                            $q->where('name', $campusName);
+                                                        })
+                                                        ->where('academic_year_id', $academicYearId)
+                                                        ->first();
+                                                        
+                                                    // Get course and qualification IDs for grouping
+                                                    $courseId = null;
+                                                    $examTypeId = null;
+                                                    $qualificationTypeId = null;
+                                                    $campusId = null;
+                                                    
+                                                    if ($firstAssessment) {
+                                                        $courseId = $firstAssessment->course_id;
+                                                        $examTypeId = $firstAssessment->exam_type_id;
+                                                        $qualificationTypeId = $firstAssessment->qualification_type_id;
+                                                        $campusId = $firstAssessment->campus_id;
+                                                    }
+                                                    
+                                                    // Count total assessments in this group
+                                                    $assessmentCount = $this->getAssessmentCountForGroup(
+                                                        $data['course_code'],
+                                                        $data['qualification_name'],
+                                                        $data['exam_type'],
+                                                        $campusName
+                                                    );
+                                                @endphp
+                                                @if($firstAssessment)
+                                                    <div class="flex flex-col items-center">
+                                                        <button wire:click="$dispatch('openModal', { component: 'modals.tesda-focal.view-assessment-results', arguments: { assessmentId: {{ $firstAssessment->id }}, groupCriteria: { course_id: {{ $courseId }}, exam_type_id: {{ $examTypeId }}, qualification_type_id: {{ $qualificationTypeId }}, campus_id: {{ $campusId }} } }})"
+                                                           class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                            <x-icon name="eye" style="fas" class="w-3 h-3 mr-1" />
+                                                            View Results
+                                                        </button>
+                                                        @if($assessmentCount > 1)
+                                                            <span class="text-xs text-blue-600 mt-1">{{ $assessmentCount }} assessments</span>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <span class="text-gray-400 text-xs">No data</span>
+                                                @endif
+                                            </td>
                                         </tr>
                                     @endforeach
                                     
@@ -303,6 +359,9 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">{{ number_format($data['totals']['total_students']) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                                            <!-- Empty Actions cell for totals row -->
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -338,6 +397,7 @@
                                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Not Yet Competent</th>
                                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">No Assessment Yet / Absent</th>
                                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Students</th>
+                                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -371,6 +431,61 @@
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">{{ number_format($data['campus_data']['total_students']) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                                @php
+                                                    // Get the assessment for this specific campus, course, qualification, and exam type
+                                                    $academicYearId = $this->academicYearFilter ?: App\Models\Academic::where('is_active', true)->first()?->id;
+                                                    $firstAssessment = App\Models\Assessment::whereHas('course', function($q) use ($data) {
+                                                            $q->where('code', $data['course_code']);
+                                                        })
+                                                        ->whereHas('qualificationType', function($q) use ($data) {
+                                                            $q->where('name', $data['qualification_name']);
+                                                        })
+                                                        ->whereHas('examType', function($q) use ($data) {
+                                                            $q->where('type', $data['exam_type']);
+                                                        })
+                                                        ->whereHas('campus', function($q) {
+                                                            $q->where('name', $this->activeTab);
+                                                        })
+                                                        ->where('academic_year_id', $academicYearId)
+                                                        ->first();
+                                                        
+                                                    // Get course and qualification IDs for grouping
+                                                    $courseId = null;
+                                                    $examTypeId = null;
+                                                    $qualificationTypeId = null;
+                                                    $campusId = null;
+                                                    
+                                                    if ($firstAssessment) {
+                                                        $courseId = $firstAssessment->course_id;
+                                                        $examTypeId = $firstAssessment->exam_type_id;
+                                                        $qualificationTypeId = $firstAssessment->qualification_type_id;
+                                                        $campusId = $firstAssessment->campus_id;
+                                                    }
+                                                    
+                                                    // Count total assessments in this group
+                                                    $assessmentCount = $this->getAssessmentCountForGroup(
+                                                        $data['course_code'],
+                                                        $data['qualification_name'],
+                                                        $data['exam_type'],
+                                                        $this->activeTab
+                                                    );
+                                                @endphp
+                                                @if($firstAssessment)
+                                                    <div class="flex flex-col items-center">
+                                                        <button wire:click="$dispatch('openModal', { component: 'modals.tesda-focal.view-assessment-results', arguments: { assessmentId: {{ $firstAssessment->id }}, groupCriteria: { course_id: {{ $courseId }}, exam_type_id: {{ $examTypeId }}, qualification_type_id: {{ $qualificationTypeId }}, campus_id: {{ $campusId }} } }})"
+                                                           class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                            <x-icon name="eye" style="fas" class="w-3 h-3 mr-1" />
+                                                            View Results
+                                                        </button>
+                                                        @if($assessmentCount > 1)
+                                                            <span class="text-xs text-blue-600 mt-1">{{ $assessmentCount }} assessments</span>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <span class="text-gray-400 text-xs">No data</span>
+                                                @endif
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

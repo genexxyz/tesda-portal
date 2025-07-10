@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Livewire\Modals\ProgramHead;
+namespace App\Livewire\Modals\Registrar;
 
 use App\Models\Student;
 use LivewireUI\Modal\ModalComponent;
 
-class ViewStudentDetails extends ModalComponent
+class ViewStudent extends ModalComponent
 {
     public $student;
 
@@ -25,7 +25,7 @@ class ViewStudentDetails extends ModalComponent
 
     public function render()
     {
-        return view('livewire.modals.program-head.view-student-details');
+        return view('livewire.modals.registrar.view-student');
     }
 
     public static function modalMaxWidth(): string

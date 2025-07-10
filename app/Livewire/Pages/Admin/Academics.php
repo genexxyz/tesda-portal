@@ -16,6 +16,7 @@ class Academics extends Component
     #[Title('Academic Year')]
 
     #[On('academic-year-created')]
+    #[On('academic-year-updated')]
     public function refreshTable()
     {
         // Just force a re-render

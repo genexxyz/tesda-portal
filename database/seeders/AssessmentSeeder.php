@@ -49,36 +49,6 @@ class AssessmentSeeder extends Seeder
 
         
 
-        // Create Assessment Centers
-        AssessmentCenter::create([
-            'name' => 'Main Assessment Center',
-            'address' => '123 Main Street, City, Province',
-        ]);
-
-        AssessmentCenter::create([
-            'name' => 'Secondary Assessment Center',
-            'address' => '456 Secondary Street, City, Province',
-        ]);
-
-        // Create Assessors
-        Assessor::create([
-            'name' => 'John Doe',
-        ]);
-
-        Assessor::create([
-            'name' => 'Jane Smith',
-        ]);
-
-        Assessor::create([
-            'name' => 'Michael Johnson',
-        ]);
-
-        // Associate assessors with assessment centers
-        $assessors = Assessor::all();
-        $centers = AssessmentCenter::all();
-
-        foreach ($assessors as $assessor) {
-            $assessor->assessmentCenters()->attach($centers->random(rand(1, 2)));
-        }
+        
     }
 }

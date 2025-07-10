@@ -65,7 +65,7 @@
                 @foreach($assessors as $assessor)
                     <x-tables.table-row wire:key="assessor-{{ $assessor->id }}">
                         <x-tables.table-cell class="w-16">
-                            
+                            {{ $loop->iteration }}
                         </x-tables.table-cell>
                         <x-tables.table-cell>
                             <div class="flex items-center">
@@ -103,7 +103,7 @@
                         </x-tables.table-cell>
                         <x-tables.table-cell>
                             <div class="flex items-center space-x-2">
-                                <button wire:click="$dispatch('openModal', { component: 'modals.admin.assessment.edit-assessor', arguments: { assessorId: {{ $assessor->id }} } })"
+                                <button wire:click="$dispatch('openModal', { component: 'modals.admin.edit-assessor', arguments: { assessorId: {{ $assessor->id }} } })"
                                         class="text-blue-600 hover:text-blue-900 text-sm font-medium">
                                     <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
                                     Edit

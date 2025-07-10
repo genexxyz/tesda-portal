@@ -92,7 +92,9 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($registrars as $registrar)
                         <x-tables.table-row wire:key="registrar-{{ $registrar->id }}">
-                            <x-tables.table-cell class="w-16"></x-tables.table-cell>
+                            <x-tables.table-cell class="w-16">
+                                {{ $loop->iteration }}
+                            </x-tables.table-cell>
                             <x-tables.table-cell>
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-10 w-10">

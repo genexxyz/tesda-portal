@@ -95,12 +95,14 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($qualificationTypes as $qualificationType)
                         <x-tables.table-row wire:key="qualification-type-{{ $qualificationType->id }}">
-                            <x-tables.table-cell class="w-16"></x-tables.table-cell>
+                            <x-tables.table-cell class="w-16">
+                                {{ $loop->iteration }}
+                            </x-tables.table-cell>
                             <x-tables.table-cell>
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-10 w-10">
                                         <div class="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                                            <x-icon name="certificate" style="fas" class="w-5 h-5 text-green-600" />
+                                            <x-icon name="award" style="fas" class="text-green-600" />
                                         </div>
                                     </div>
                                     <div class="ml-4">

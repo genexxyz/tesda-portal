@@ -230,15 +230,11 @@
                             <x-tables.table-cell>
                                 <div class="flex items-center space-x-2">
                                     <button wire:click="$dispatch('openModal', { component: 'modals.program-head.view-student-details', arguments: { studentId: {{ $student->id }} } })"
-                                            class="text-blue-600 hover:text-blue-900 text-sm font-medium">
+                                            class="text-blue-600 hover:text-blue-900 text-sm font-medium cursor-pointer">
                                         <x-icon name="eye" style="fas" class="w-4 h-4 mr-1" />
                                         View
                                     </button>
-                                    <button wire:click="$dispatch('openModal', { component: 'modals.program-head.assign-assessment', arguments: { studentId: {{ $student->id }} } })"
-                                            class="text-green-600 hover:text-green-900 text-sm font-medium">
-                                        <x-icon name="clipboard-list" style="fas" class="w-4 h-4 mr-1" />
-                                        Assess
-                                    </button>
+                                    
                                 </div>
                             </x-tables.table-cell>
                         </x-tables.table-row>
