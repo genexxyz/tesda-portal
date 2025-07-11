@@ -12,7 +12,7 @@
         
 
         <!-- Search and Filter Bar -->
-        <div class=" grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class=" grid grid-cols-1 md:grid-cols-4 gap-4">
             <!-- Search Input -->
             <div>
                 <x-inputs.search-input 
@@ -33,6 +33,22 @@
                     text-field="code" />
             </div>
 
+            <!-- Status Filter -->
+            <div>
+                <x-inputs.filter-select 
+                    id="statusFilter"
+                    wire:model.live="statusFilter"
+                    placeholder="All Status"
+                    icon="user-check"
+                    :options="[
+                        (object)['value' => 'active', 'label' => 'Active'],
+                        (object)['value' => 'dropped', 'label' => 'Dropped'],
+                        (object)['value' => 'inactive', 'label' => 'Inactive']
+                    ]"
+                    value-field="value"
+                    text-field="label" />
+            </div>
+
             <!-- Quick Actions -->
             <x-buttons.import-export-buttons 
     import-modal="modals.registrar.bulk-import-students"
@@ -42,7 +58,7 @@
         </div>
 
         <!-- Active Filters Display -->
-        @if($search || $courseFilter)
+        @if($search || $courseFilter || $statusFilter)
             <div class="mb-4">
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="text-sm font-medium text-gray-700">Active filters:</span>
@@ -62,6 +78,16 @@
                             <x-icon name="graduation-cap" style="fas" class="w-3 h-3 mr-1" />
                             Course: {{ $courses->find($courseFilter)?->code }}
                             <button wire:click="$set('courseFilter', '')" class="ml-2 text-green-600 hover:text-green-800">
+                                <x-icon name="times" style="fas" class="w-3 h-3" />
+                            </button>
+                        </span>
+                    @endif
+
+                    @if($statusFilter)
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            <x-icon name="user-check" style="fas" class="w-3 h-3 mr-1" />
+                            Status: {{ ucfirst($statusFilter) }}
+                            <button wire:click="$set('statusFilter', '')" class="ml-2 text-purple-600 hover:text-purple-800">
                                 <x-icon name="times" style="fas" class="w-3 h-3" />
                             </button>
                         </span>
@@ -130,8 +156,16 @@
             </div>
         </div>
         <div class="ml-4">
-            <div class="text-sm font-medium text-gray-900">
-                {{ $student->user ? $student->user->last_name . ', ' . $student->user->first_name . ' ' . $student->user->middle_name : 'No user data' }}
+            <div class="flex items-center space-x-2">
+                <div class="text-sm font-medium text-gray-900">
+                    {{ $student->user ? $student->full_name : 'No user data' }}
+                </div>
+                @if($student->user && $student->user->status === 'dropped')
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <x-icon name="user-times" style="fas" class="w-3 h-3 mr-1" />
+                        Dropped
+                    </span>
+                @endif
             </div>
             @if($student->user && $student->user->email)
                 <div class="text-sm text-gray-500">{{ $student->user->email }}</div>

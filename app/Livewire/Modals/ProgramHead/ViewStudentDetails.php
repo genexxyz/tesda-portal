@@ -15,10 +15,11 @@ class ViewStudentDetails extends ModalComponent
             'user', 
             'course.campuses', 
             'academicYear',
-            'results.assessment.qualificationType',
-            'results.assessment.examType',
-            'results.assessment.assessor',
-            'results.assessment.assessmentCenter',
+            'results.assessmentSchedule.assessment.qualificationType',
+            'results.assessmentSchedule.assessment.examType',
+            'results.assessmentSchedule.assessment.course',
+            'results.assessmentSchedule.assessor',
+            'results.assessmentSchedule.assessmentCenter',
             'results.competencyType'
         ])->findOrFail($studentId);
     }

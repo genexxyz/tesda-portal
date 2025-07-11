@@ -99,9 +99,9 @@ return new class extends Migration
             $table->foreignId('student_id')->constrained('students')->restrictOnDelete();
             $table->foreignId('competency_type_id')->nullable()->constrained('competency_types')->restrictOnDelete(); //will be used to store the result of the assessment (Competent, Not Yet Competent, Dropped, Absent) after the assessment date
             $table->text('remarks')->nullable();
+            $table->foreignId('created_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->timestamps();
             $table->unique(['assessment_schedule_id', 'student_id']);
-
         });
     }
 

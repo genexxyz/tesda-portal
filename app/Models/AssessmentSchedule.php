@@ -9,13 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class AssessmentSchedule extends Model
 {
     /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    
-    
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

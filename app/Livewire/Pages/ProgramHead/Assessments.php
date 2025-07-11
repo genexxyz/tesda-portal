@@ -9,6 +9,10 @@ use App\Models\Course;
 use App\Models\Campus;
 use App\Models\Academic;
 use App\Models\ProgramHead;
+use App\Models\AssessmentSchedule;
+use App\Models\Result;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
@@ -37,6 +41,49 @@ class Assessments extends Component
         $this->dateFilter = '';
         $this->statusFilter = '';
     }
+
+    public function deleteAssessment($assessmentId)
+    {
+        try {
+            DB::beginTransaction();
+
+            $assessment = Assessment::with('schedules.results')->findOrFail($assessmentId);
+            
+            // Check if the assessment has no schedules
+            if ($assessment->schedules->count() > 0) {
+                session()->flash('error', 'Cannot delete assessment with existing schedules. Please delete all schedules first.');
+                return;
+            }
+
+            // Delete the assessment
+            $assessment->delete();
+
+            DB::commit();
+
+            $this->dispatch('swal:alert', 
+                type: 'success',
+                text: 'Assessment has been deleted successfully.'
+            );
+            
+            Log::info('Assessment deleted', [
+                'assessment_id' => $assessmentId,
+                'deleted_by' => Auth::id()
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to delete assessment', [
+                'assessment_id' => $assessmentId,
+                'error' => $e->getMessage()
+            ]);
+            $this->dispatch('swal:alert', 
+                type: 'error',
+                text: 'Assessment has been deleted successfully.'
+            );
+        }
+    }
+
+    
 
     public function getCoursesProperty()
     {

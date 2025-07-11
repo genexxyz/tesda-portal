@@ -43,14 +43,41 @@ class SubmitResults extends Component
             'academicYear', 
             'qualificationType', 
             'examType', 
+            'schedules' => function($query) {
+                $query->orderBy('assessment_date', 'asc');
+            },
             'schedules.assessmentCenter', 
             'schedules.assessor',
+            'schedules.results' => function($query) {
+                $query->join('students', 'results.student_id', '=', 'students.id')
+                      ->join('users', 'students.user_id', '=', 'users.id')
+                      
+                      ->orderBy('users.last_name', 'asc')
+                      ->orderBy('users.first_name', 'asc')
+                      ->select('results.*');
+            },
             'schedules.results.student.user',
             'schedules.results.competencyType'
         ]);
 
         $this->initializeResults();
     }
+
+    public function getSortedResultsProperty()
+{
+    // Get all results from all schedules and sort them by student's last name
+    $allResults = collect();
+    
+    foreach ($this->assessment->schedules as $schedule) {
+        $allResults = $allResults->merge($schedule->results);
+    }
+    
+    // Sort by student's last name, then first name
+    return $allResults->sortBy([
+        ['student.user.last_name', 'asc'],
+        ['student.user.first_name', 'asc']
+    ])->values();
+}
 
     public function initializeResults()
     {
@@ -146,6 +173,7 @@ class SubmitResults extends Component
         $notCompetentTypeId = $this->competencyTypes->where('name', 'Not Yet Competent')->first()?->id;
         $absentTypeId = $this->competencyTypes->where('name', 'Absent')->first()?->id;
         
+        
         $competent = collect($this->studentResults)->filter(function ($result) use ($competentTypeId) {
             return $result['competency_type_id'] == $competentTypeId;
         })->count();
@@ -172,8 +200,9 @@ class SubmitResults extends Component
     public function render()
     {
         return view('livewire.pages.program-head.submit-results', [
-            'competencyTypes' => $this->competencyTypes,
-            'stats' => $this->completionStats
-        ]);
+        'competencyTypes' => $this->competencyTypes,
+        'stats' => $this->completionStats,
+        'sortedResults' => $this->sortedResults
+    ]);
     }
 }

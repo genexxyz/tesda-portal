@@ -53,14 +53,16 @@
                             id="student_id"
                             wire:model="student_id"
                             label="Student ID"
-                            placeholder="Enter student ID (optional)" />
+                            placeholder="Enter student ID"
+                            required />
 
                         <!-- ULI -->
                         <x-inputs.text-input 
                             id="uli"
                             wire:model="uli"
                             label="ULI (Unique Learner Identifier)"
-                            placeholder="Enter ULI (optional)" />
+                            placeholder="Enter ULI"
+                            required="" />
 
                         <!-- Course -->
                         <x-inputs.select-input 
@@ -86,37 +88,50 @@
                     </div>
                 </div>
 
-                <!-- Additional Information -->
-                <div class="border-t border-gray-200 pt-4">
-                    <div class="bg-blue-50 rounded-lg p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <x-icon name="info-circle" style="fas" class="h-5 w-5 text-blue-400" />
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-blue-700">
-                                    <strong>Note:</strong> Student ID and ULI are optional but recommended for proper identification. 
-                                    The course selection is limited to courses available at your campus.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </x-modals.modal-body>
 
         <x-modals.modal-footer>
-            <x-buttons.secondary-button wire:click="closeModal">
-                Cancel
-            </x-buttons.secondary-button>
+            <div class="flex justify-between w-full">
+                <!-- Left side - Mark as Dropped button -->
+                <div class="flex">
+                    @if($student->user && $student->user->status !== 'dropped')
+                        <x-buttons.danger-button wire:confirm="Are you sure you want to mark this student as dropped? This will update their user status and mark all pending assessments as dropped." 
+                            wire:click="markAsDropped"
+                            wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="markAsDropped">
+                                <x-icon name="user-times" style="fas" class="w-4 h-4 mr-2" />
+                                Mark as Dropped
+                            </span>
+                            <span wire:loading wire:target="markAsDropped" class="flex items-center">
+                                <x-icon name="spinner" style="fas" class="w-4 h-4 mr-2 animate-spin" />
+                                Processing...
+                            </span>
+                        </x-buttons.danger-button>
+                    @elseif($student->user && $student->user->status === 'dropped')
+                        <div class="bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                            <x-icon name="user-times" style="fas" class="w-4 h-4 mr-2" />
+                            Student is Dropped
+                        </div>
+                    @endif
+                </div>
 
-            <x-buttons.primary-button type="submit" wire:loading.attr="disabled">
-                <span wire:loading.remove wire:target="save">Update Student</span>
-                <span wire:loading wire:target="save" class="flex items-center">
-                    <x-icon name="spinner" style="fas" class="w-4 h-4 mr-2 animate-spin" />
-                    Updating...
-                </span>
-            </x-buttons.primary-button>
+                <!-- Right side - Cancel and Update buttons -->
+                <div class="flex space-x-3">
+                    <x-buttons.secondary-button wire:click="closeModal">
+                        Cancel
+                    </x-buttons.secondary-button>
+
+                    <x-buttons.primary-button type="submit" wire:loading.attr="disabled">
+                        <span wire:loading.remove wire:target="save">Update Student</span>
+                        <span wire:loading wire:target="save" class="flex items-center">
+                            <x-icon name="spinner" style="fas" class="w-4 h-4 mr-2 animate-spin" />
+                            Updating...
+                        </span>
+                    </x-buttons.primary-button>
+                </div>
+            </div>
         </x-modals.modal-footer>
     </form>
 </div>

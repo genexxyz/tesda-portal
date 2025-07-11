@@ -209,117 +209,118 @@
                 </div>
                 
                 <!-- Scrollable Body -->
-                <div class="overflow-y-auto max-h-96 overflow-x-auto">
-                    <table class="min-w-full table-fixed">
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($assessment->results as $result)
-                                <tr wire:key="result-{{ $result->id }}">
-                                    <!-- Student Column -->
-                                    <td class="w-80 px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10">
-                                                <div class="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
-                                                    <x-icon name="user" style="fas" class="w-5 h-5 text-gray-500" />
-                                                </div>
-                                            </div>
-                                            <div class="ml-4 min-w-0 flex-1">
-                                                <div class="text-sm font-medium text-gray-900 truncate">
-                                                    {{ $result->student?->user?->first_name }} {{ $result->student?->user?->last_name }}
-                                                </div>
-                                                <div class="text-sm text-gray-500">
-                                                    {{ $result->student?->student_id }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    
-                                    <!-- Status Column -->
-                                    <td class="w-32 px-6 py-4 whitespace-nowrap text-center">
-                                        @if($studentResults[$result->id]['competency_type_id'])
-                                            @php
-                                                $selectedType = $competencyTypes->find($studentResults[$result->id]['competency_type_id']);
-                                            @endphp
-                                            @if($selectedType)
-                                                @if($selectedType->name === 'Competent')
-                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        <x-icon name="check" style="fas" class="w-3 h-3 mr-1" />
-                                                        Competent
-                                                    </span>
-                                                @elseif($selectedType->name === 'Not Yet Competent')
-                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                        <x-icon name="times" style="fas" class="w-3 h-3 mr-1" />
-                                                        Not Yet
-                                                    </span>
-                                                @elseif($selectedType->name === 'Absent')
-                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                                        <x-icon name="user-times" style="fas" class="w-3 h-3 mr-1" />
-                                                        Absent
-                                                    </span>
-                                                @endif
-                                            @endif
-                                        @else
-                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                <x-icon name="clock" style="fas" class="w-3 h-3 mr-1" />
-                                                Pending
-                                            </span>
-                                        @endif
-                                    </td>
-                                    
-                                    <!-- Competent Radio Button -->
-                                    <td class="w-24 px-6 py-4 whitespace-nowrap text-center">
-                                        @php
-                                            $competentType = $competencyTypes->where('name', 'Competent')->first();
-                                        @endphp
-                                        @if($competentType)
-                                            <input type="radio"
-                                                   name="result_{{ $result->id }}"
-                                                   wire:click="updateCompetencyType({{ $result->id }}, {{ $competentType->id }})"
-                                                   {{ $studentResults[$result->id]['competency_type_id'] == $competentType->id ? 'checked' : '' }}
-                                                   class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
-                                        @endif
-                                    </td>
-                                    
-                                    <!-- Not Yet Competent Radio Button -->
-                                    <td class="w-32 px-6 py-4 whitespace-nowrap text-center">
-                                        @php
-                                            $notCompetentType = $competencyTypes->where('name', 'Not Yet Competent')->first();
-                                        @endphp
-                                        @if($notCompetentType)
-                                            <input type="radio"
-                                                   name="result_{{ $result->id }}"
-                                                   wire:click="updateCompetencyType({{ $result->id }}, {{ $notCompetentType->id }})"
-                                                   {{ $studentResults[$result->id]['competency_type_id'] == $notCompetentType->id ? 'checked' : '' }}
-                                                   class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
-                                        @endif
-                                    </td>
-                                    
-                                    <!-- Absent Radio Button -->
-                                    <td class="w-20 px-6 py-4 whitespace-nowrap text-center">
-                                        @php
-                                            $absentType = $competencyTypes->where('name', 'Absent')->first();
-                                        @endphp
-                                        @if($absentType)
-                                            <input type="radio"
-                                                   name="result_{{ $result->id }}"
-                                                   wire:click="updateCompetencyType({{ $result->id }}, {{ $absentType->id }})"
-                                                   {{ $studentResults[$result->id]['competency_type_id'] == $absentType->id ? 'checked' : '' }}
-                                                   class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300">
-                                        @endif
-                                    </td>
-                                    
-                                    <!-- Remarks Column -->
-                                    <td class="flex-1 px-6 py-4">
-                                        <input type="text"
-                                               wire:model="studentResults.{{ $result->id }}.remarks"
-                                               placeholder="Add remarks..."
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<div class="overflow-y-auto max-h-96 overflow-x-auto">
+    <table class="min-w-full table-fixed">
+        <tbody class="bg-white divide-y divide-gray-200">
+            @foreach($sortedResults as $result)
+                <tr wire:key="result-{{ $result->id }}">
+                    <!-- Student Column -->
+                    <td class="w-80 px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="ml-2 min-w-0 flex-1">
+                                <div class="text-sm font-medium text-gray-900 truncate">
+                                    {{ $result->student?->user?->last_name }}, {{ $result->student?->user?->first_name }}
+                                    @if($result->student?->user?->middle_name)
+                                        {{ substr($result->student?->user?->middle_name, 0, 1) }}.
+                                    @endif
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ $result->student?->student_id }}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    
+                    <!-- Status Column -->
+                    <td class="w-32 px-6 py-4 whitespace-nowrap text-center">
+                        @if($studentResults[$result->id]['competency_type_id'])
+                            @php
+                                $selectedType = $competencyTypes->find($studentResults[$result->id]['competency_type_id']);
+                            @endphp
+                            @if($selectedType)
+                                @if($selectedType->name === 'Competent')
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <x-icon name="check" style="fas" class="w-3 h-3 mr-1" />
+                                        Competent
+                                    </span>
+                                @elseif($selectedType->name === 'Not Yet Competent')
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <x-icon name="times" style="fas" class="w-3 h-3 mr-1" />
+                                        Not Yet
+                                    </span>
+                                @elseif($selectedType->name === 'Absent')
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                        <x-icon name="user-times" style="fas" class="w-3 h-3 mr-1" />
+                                        Absent
+                                    </span>
+                                    @elseif($selectedType->name === 'Dropped')
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        <x-icon name="user-times" style="fas" class="w-3 h-3 mr-1" />
+                                        Dropped</span>
+                                @endif
+                            @endif
+                        @else
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                <x-icon name="clock" style="fas" class="w-3 h-3 mr-1" />
+                                Pending
+                            </span>
+                        @endif
+                    </td>
+                    
+                    <!-- Competent Radio Button -->
+                    <td class="w-24 px-6 py-4 whitespace-nowrap text-center">
+                        @php
+                            $competentType = $competencyTypes->where('name', 'Competent')->first();
+                        @endphp
+                        @if($competentType)
+                            <input type="radio"
+                                   name="result_{{ $result->id }}"
+                                   wire:click="updateCompetencyType({{ $result->id }}, {{ $competentType->id }})"
+                                   {{ $studentResults[$result->id]['competency_type_id'] == $competentType->id ? 'checked' : '' }}
+                                   class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
+                        @endif
+                    </td>
+                    
+                    <!-- Not Yet Competent Radio Button -->
+                    <td class="w-32 px-6 py-4 whitespace-nowrap text-center">
+                        @php
+                            $notCompetentType = $competencyTypes->where('name', 'Not Yet Competent')->first();
+                        @endphp
+                        @if($notCompetentType)
+                            <input type="radio"
+                                   name="result_{{ $result->id }}"
+                                   wire:click="updateCompetencyType({{ $result->id }}, {{ $notCompetentType->id }})"
+                                   {{ $studentResults[$result->id]['competency_type_id'] == $notCompetentType->id ? 'checked' : '' }}
+                                   class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
+                        @endif
+                    </td>
+                    
+                    <!-- Absent Radio Button -->
+                    <td class="w-20 px-6 py-4 whitespace-nowrap text-center">
+                        @php
+                            $absentType = $competencyTypes->where('name', 'Absent')->first();
+                        @endphp
+                        @if($absentType)
+                            <input type="radio"
+                                   name="result_{{ $result->id }}"
+                                   wire:click="updateCompetencyType({{ $result->id }}, {{ $absentType->id }})"
+                                   {{ $studentResults[$result->id]['competency_type_id'] == $absentType->id ? 'checked' : '' }}
+                                   class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300">
+                        @endif
+                    </td>
+                    
+                    <!-- Remarks Column -->
+                    <td class="flex-1 px-6 py-4">
+                        <input type="text"
+                               wire:model="studentResults.{{ $result->id }}.remarks"
+                               placeholder="Add remarks..."
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
             
             @if($isSaved)
                 <div class="px-6 py-4 bg-green-50 border-t border-green-200">

@@ -10,6 +10,7 @@ use App\Models\Academic;
 use App\Models\AssessmentCenter;
 use App\Models\Assessor;
 use App\Models\Assessment;
+use App\Models\AssessmentSchedule;
 use App\Models\Result;
 use App\Models\ProgramHead;
 use App\Models\ExamType;
@@ -17,6 +18,7 @@ use LivewireUI\Modal\ModalComponent;
 use Livewire\Attributes\On;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AssignAssessment extends ModalComponent
 {
@@ -108,6 +110,27 @@ class AssignAssessment extends ModalComponent
         $this->selectedStudents = [];
     }
     
+    public function updatedQualificationTypeId()
+    {
+        // Reload students when qualification type changes since it affects assessment filtering
+        $this->loadAvailableStudents();
+        $this->selectedStudents = []; // Reset selections as available students may have changed
+    }
+    
+    public function updatedExamTypeId()
+    {
+        // Reload students when exam type changes since it affects assessment filtering
+        $this->loadAvailableStudents();
+        $this->selectedStudents = []; // Reset selections as available students may have changed
+    }
+    
+    public function updatedAcademicId()
+    {
+        // Reload students when academic year changes since it affects assessment filtering
+        $this->loadAvailableStudents();
+        $this->selectedStudents = []; // Reset selections as available students may have changed
+    }
+    
     public function updatedAssessmentCenterId()
     {
         if ($this->assessmentCenterId) {
@@ -142,24 +165,94 @@ class AssignAssessment extends ModalComponent
             return;
         }
         
-        // Get all students for this course
-        $allStudents = Student::where('course_id', $this->courseId)->get()->sortBy('user.first_name');
+        // Get all students for this course, sorted by last name, excluding inactive/dropped users
+        $allStudents = Student::with('user')
+            ->where('course_id', $this->courseId)
+            ->whereHas('user', function($query) {
+                $query->orderBy('last_name', 'asc')
+                      ->orderBy('first_name', 'asc');
+            })
+            ->get()
+            ->sortBy([
+                ['user.last_name', 'asc'],
+                ['user.first_name', 'asc']
+            ]);
         
-        // Filter out students already assigned to assessments on the selected date
+        // Filter out students based on various criteria
         $availableStudents = $allStudents->filter(function ($student) {
-            if (!$this->assessmentDate) {
-                return true; // If no date selected yet, show all students
+            // First, check if student is already assigned to the SAME ASSESSMENT (any schedule)
+            if ($this->courseId && $this->qualificationTypeId && $this->examTypeId && $this->academicId) {
+                // Get campus_id - try from selected students first, fallback to current user's campus
+                $campusId = $this->deriveCampusIdForFiltering($student);
+                
+                if ($campusId) {
+                    // Check if there's an assessment with these core details
+                    $existingAssessment = Assessment::where('course_id', $this->courseId)
+                        ->where('qualification_type_id', $this->qualificationTypeId)
+                        ->where('exam_type_id', $this->examTypeId)
+                        ->where('academic_year_id', $this->academicId)
+                        ->where('campus_id', $campusId)
+                        ->first();
+                        
+                    if ($existingAssessment) {
+                        // Check if student is already assigned to ANY schedule of this assessment
+                        $isAlreadyInAssessment = Result::whereHas('assessmentSchedule', function($query) use ($existingAssessment) {
+                            $query->where('assessment_id', $existingAssessment->id);
+                        })->where('student_id', $student->id)->exists();
+                        
+                        if ($isAlreadyInAssessment) {
+                            return false; // Student is already in this assessment, don't show them
+                        }
+                    }
+                }
             }
             
-            // Check if student is already assigned to an assessment on this date
-            $hasAssessment = Result::whereHas('assessmentSchedule', function($query) {
+            if (!$this->assessmentDate) {
+                return true; // If no date selected yet, show remaining students
+            }
+            
+            // Check if student is already assigned to ANY assessment on this specific date
+            $hasAssessmentOnDate = Result::whereHas('assessmentSchedule', function($query) {
                 $query->whereDate('assessment_date', $this->assessmentDate);
             })->where('student_id', $student->id)->exists();
             
-            return !$hasAssessment;
+            if ($hasAssessmentOnDate) {
+                return false; // Already assigned to some assessment on this date
+            }
+            
+            return true; // Available for assignment
         });
         
         $this->students = $availableStudents;
+    }
+    
+    private function deriveCampusIdForFiltering($student = null)
+    {
+        // If we already have a campus ID set, use it
+        if ($this->campusId) {
+            return $this->campusId;
+        }
+        
+        // If we have selected students, use the first student's campus
+        if (!empty($this->selectedStudents)) {
+            $firstStudent = Student::with('user')->find($this->selectedStudents[0]);
+            if ($firstStudent && $firstStudent->user && $firstStudent->user->campus_id) {
+                return $firstStudent->user->campus_id;
+            }
+        }
+        
+        // If a specific student is provided, use their campus
+        if ($student && $student->user && $student->user->campus_id) {
+            return $student->user->campus_id;
+        }
+        
+        // Fallback to current user's campus
+        $currentUser = Auth::user();
+        if ($currentUser && $currentUser->campus_id) {
+            return $currentUser->campus_id;
+        }
+        
+        return null;
     }
     
     public function updatedAssessmentDate()
@@ -284,9 +377,16 @@ class AssignAssessment extends ModalComponent
         }
         
         // Get the campus from the first selected student
-        $firstStudent = Student::find($this->selectedStudents[0]);
-        if ($firstStudent && $firstStudent->user) {
+        $firstStudent = Student::with('user')->find($this->selectedStudents[0]);
+        if ($firstStudent && $firstStudent->user && $firstStudent->user->campus_id) {
             $this->campusId = $firstStudent->user->campus_id;
+            return;
+        }
+        
+        // Fallback to current user's campus if student doesn't have one
+        $currentUser = Auth::user();
+        if ($currentUser && $currentUser->campus_id) {
+            $this->campusId = $currentUser->campus_id;
         }
     }
 
@@ -294,65 +394,79 @@ class AssignAssessment extends ModalComponent
     {
         $errors = [];
         
-        // Check for duplicate assessments on the same day
+        // Check if assessment with core details already exists
         $existingAssessment = Assessment::where('course_id', $this->courseId)
             ->where('campus_id', $this->campusId)
             ->where('qualification_type_id', $this->qualificationTypeId)
-            ->whereHas('schedules', function($query) {
-                $query->where('assessment_center_id', $this->assessmentCenterId)
-                      ->where('assessor_id', $this->assessorId)
-                      ->whereDate('assessment_date', $this->assessmentDate);
-            })
+            ->where('exam_type_id', $this->examTypeId)
+            ->where('academic_year_id', $this->academicId)
             ->first();
             
         if ($existingAssessment) {
-            $errors['duplicate_assessment'] = 'An assessment with the same details already exists on this date.';
+            // Check which students are already assigned to ANY schedule of this assessment
+            $studentsInAssessment = [];
+            $availableSlots = [];
+            
+            foreach ($this->selectedStudents as $studentId) {
+                $existingInAssessment = Result::whereHas('assessmentSchedule', function($query) use ($existingAssessment) {
+                    $query->where('assessment_id', $existingAssessment->id);
+                })->where('student_id', $studentId)->first();
+                
+                if ($existingInAssessment) {
+                    $student = Student::find($studentId);
+                    $studentsInAssessment[] = $student->user->name;
+                } else {
+                    $availableSlots[] = $studentId;
+                }
+            }
+            
+            if (!empty($studentsInAssessment)) {
+                if (!empty($availableSlots)) {
+                    $errors['students_in_assessment'] = count($studentsInAssessment) . ' student(s) are already assigned to this assessment (in other schedules): ' . 
+                        implode(', ', $studentsInAssessment) . '. Only ' . 
+                        count($availableSlots) . ' student(s) can be added to a new schedule.';
+                } else {
+                    $errors['all_students_in_assessment'] = 'All selected students are already assigned to this assessment in existing schedules.';
+                }
+            }
+            
+            // If creating a new schedule, check for exact schedule match
+            if (!empty($availableSlots)) {
+                $exactScheduleMatch = $existingAssessment->schedules()
+                    ->where('assessment_center_id', $this->assessmentCenterId)
+                    ->where('assessor_id', $this->assessorId)
+                    ->whereDate('assessment_date', $this->assessmentDate)
+                    ->first();
+                    
+                if ($exactScheduleMatch) {
+                    $errors['exact_schedule_exists'] = 'An identical schedule already exists for this assessment on ' . 
+                        date('F j, Y', strtotime($this->assessmentDate)) . 
+                        '. You can add the remaining ' . count($availableSlots) . ' student(s) to this existing schedule.';
+                }
+            }
         }
         
-        // Check for students already assigned to assessments on the same date
-        $duplicateStudents = [];
+        // Check for students already assigned to OTHER assessments on the same date
+        $conflictStudents = [];
         foreach ($this->selectedStudents as $studentId) {
-            $existingResult = Result::whereHas('assessmentSchedule', function($query) {
+            $conflictResult = Result::whereHas('assessmentSchedule', function($query) use ($existingAssessment) {
                 $query->whereDate('assessment_date', $this->assessmentDate);
+                
+                // Exclude schedules from the current assessment if it exists
+                if ($existingAssessment) {
+                    $query->where('assessment_id', '!=', $existingAssessment->id);
+                }
             })->where('student_id', $studentId)->first();
             
-            if ($existingResult) {
+            if ($conflictResult) {
                 $student = Student::find($studentId);
-                $duplicateStudents[] = $student->user->name;
+                $conflictStudents[] = $student->user->name;
             }
         }
         
-        if (!empty($duplicateStudents)) {
-            $errors['duplicate_students'] = 'The following students are already assigned to an assessment on this date: ' . implode(', ', $duplicateStudents);
-        }
-        
-        // Check for students already assigned to the same assessment schedule
-        if ($existingAssessment) {
-            $alreadyAssignedStudents = [];
-            
-            // Get the existing schedule
-            $existingSchedule = $existingAssessment->schedules()
-                ->where('assessment_center_id', $this->assessmentCenterId)
-                ->where('assessor_id', $this->assessorId)
-                ->whereDate('assessment_date', $this->assessmentDate)
-                ->first();
-                
-            if ($existingSchedule) {
-                foreach ($this->selectedStudents as $studentId) {
-                    $existingResult = Result::where('assessment_schedule_id', $existingSchedule->id)
-                        ->where('student_id', $studentId)
-                        ->first();
-                        
-                    if ($existingResult) {
-                        $student = Student::find($studentId);
-                        $alreadyAssignedStudents[] = $student->user->name;
-                    }
-                }
-                
-                if (!empty($alreadyAssignedStudents)) {
-                    $errors['already_assigned'] = 'The following students are already assigned to this assessment: ' . implode(', ', $alreadyAssignedStudents);
-                }
-            }
+        if (!empty($conflictStudents)) {
+            $errors['date_conflict'] = 'The following students are already assigned to a DIFFERENT assessment on this date: ' . 
+                implode(', ', $conflictStudents);
         }
         
         $this->validationErrors = $errors;
@@ -368,71 +482,47 @@ class AssignAssessment extends ModalComponent
         try {
             DB::beginTransaction();
             
-            // Check if assessment already exists (based on core details)
+            // Find or create assessment (core details)
             $assessment = Assessment::where('course_id', $this->courseId)
                 ->where('campus_id', $this->campusId)
                 ->where('qualification_type_id', $this->qualificationTypeId)
                 ->where('exam_type_id', $this->examTypeId)
-                ->whereHas('schedules', function($query) {
-                    $query->where('assessment_center_id', $this->assessmentCenterId)
-                          ->where('assessor_id', $this->assessorId)
-                          ->whereDate('assessment_date', $this->assessmentDate);
-                })
+                ->where('academic_year_id', $this->academicId)
                 ->first();
                 
-            // Get or create assessment schedule
-            $schedule = null;
-            
-            // Create new assessment if it doesn't exist
             if (!$assessment) {
-                // First check if an assessment with these core details exists
-                $assessment = Assessment::where('course_id', $this->courseId)
-                    ->where('campus_id', $this->campusId)
-                    ->where('qualification_type_id', $this->qualificationTypeId)
-                    ->where('exam_type_id', $this->examTypeId)
-                    ->where('academic_year_id', $this->academicId)
-                    ->first();
+                $assessment = Assessment::create([
+                    'exam_type_id' => $this->examTypeId,
+                    'course_id' => $this->courseId,
+                    'campus_id' => $this->campusId,
+                    'qualification_type_id' => $this->qualificationTypeId,
+                    'academic_year_id' => $this->academicId,
+                    'created_by' => Auth::id(),
+                    'status' => 'scheduled'
+                ]);
+            }
+            
+            // Find or create schedule for this assessment
+            $schedule = $assessment->schedules()
+                ->where('assessment_center_id', $this->assessmentCenterId)
+                ->where('assessor_id', $this->assessorId)
+                ->whereDate('assessment_date', $this->assessmentDate)
+                ->first();
                 
-                if (!$assessment) {
-                    // Create new assessment if no matching core assessment exists
-                    $assessment = Assessment::create([
-                        'exam_type_id' => $this->examTypeId,
-                        'course_id' => $this->courseId,
-                        'campus_id' => $this->campusId,
-                        'qualification_type_id' => $this->qualificationTypeId,
-                        'academic_year_id' => $this->academicId,
-                        'created_by' => Auth::id(),
-                        'status' => 'scheduled'
-                    ]);
-                }
-                
-                // Create new schedule
+            if (!$schedule) {
                 $schedule = $assessment->schedules()->create([
                     'assessment_center_id' => $this->assessmentCenterId,
                     'assessor_id' => $this->assessorId,
                     'assessment_date' => $this->assessmentDate
                 ]);
-            } else {
-                // Get the existing schedule for this assessment
-                $schedule = $assessment->schedules()
-                    ->where('assessment_center_id', $this->assessmentCenterId)
-                    ->where('assessor_id', $this->assessorId)
-                    ->whereDate('assessment_date', $this->assessmentDate)
-                    ->first();
-                
-                // Create a new schedule if none exists
-                if (!$schedule) {
-                    $schedule = $assessment->schedules()->create([
-                        'assessment_center_id' => $this->assessmentCenterId,
-                        'assessor_id' => $this->assessorId,
-                        'assessment_date' => $this->assessmentDate
-                    ]);
-                }
             }
             
-            // Create results for each selected student (without competency_type_id)
+            // Add only new students to this schedule
+            $newStudentsAdded = 0;
+            $skippedStudents = [];
+            
             foreach ($this->selectedStudents as $studentId) {
-                // Double-check that student isn't already assigned to this schedule
+                // Check if student is already assigned to this exact schedule
                 $existingResult = Result::where('assessment_schedule_id', $schedule->id)
                     ->where('student_id', $studentId)
                     ->first();
@@ -441,18 +531,32 @@ class AssignAssessment extends ModalComponent
                     Result::create([
                         'student_id' => $studentId,
                         'assessment_schedule_id' => $schedule->id,
-                        'competency_type_id' => null, // Will be determined after assessment
+                        'competency_type_id' => null,
                         'remarks' => null,
                         'created_by' => Auth::id()
                     ]);
+                    $newStudentsAdded++;
+                } else {
+                    $student = Student::find($studentId);
+                    $skippedStudents[] = $student->user->name;
                 }
             }
             
             DB::commit();
             
+            // Prepare success message
+            $message = '';
+            if ($newStudentsAdded > 0) {
+                $message = "Successfully assigned {$newStudentsAdded} student(s) to the assessment schedule.";
+            }
+            
+            if (!empty($skippedStudents)) {
+                $message .= " " . count($skippedStudents) . " student(s) were already assigned: " . implode(', ', $skippedStudents);
+            }
+            
             $this->dispatch('swal:success', [
                 'title' => 'Success!',
-                'text' => 'Assessment assigned successfully to ' . count($this->selectedStudents) . ' student(s).',
+                'text' => $message,
             ]);
             
             $this->dispatch('assessment-assigned');
@@ -460,6 +564,12 @@ class AssignAssessment extends ModalComponent
             
         } catch (\Exception $e) {
             DB::rollback();
+            Log::error('Assessment assignment failed: ' . $e->getMessage(), [
+                'course_id' => $this->courseId,
+                'campus_id' => $this->campusId,
+                'assessment_date' => $this->assessmentDate,
+                'error' => $e->getMessage()
+            ]);
             
             $this->dispatch('swal:error', [
                 'title' => 'Error!',

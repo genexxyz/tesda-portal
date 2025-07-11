@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', ProgramHeadDashboard::class)->name('dashboard');
         Route::get('/students', \App\Livewire\Pages\ProgramHead\Students::class)->name('students');
         Route::get('/assessments', \App\Livewire\Pages\ProgramHead\Assessments::class)->name('assessments');
+        Route::get('/assessments/{assessmentId}', \App\Livewire\Pages\ProgramHead\AssessmentDetails::class)->name('assessment-details');
         Route::get('/submit-results/{assessment}', \App\Livewire\Pages\ProgramHead\SubmitResults::class)->name('submit-results');
         Route::get('/view-results', \App\Livewire\Pages\ProgramHead\ViewResults::class)->name('view-results');
     });

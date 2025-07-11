@@ -26,8 +26,9 @@ class ViewAssessmentResults extends ModalComponent
     {
         // Find the assessment for initial display
         $this->assessment = Assessment::with([
-            'course', 'campus', 'academicYear', 'qualificationType', 'examType', 'assessmentCenter', 'assessor',
-            'results.student.user', 'results.competencyType'
+            'course', 'campus', 'academicYear', 'qualificationType', 'examType',
+            'schedules.assessmentCenter', 'schedules.assessor',
+            'schedules.results.student.user', 'schedules.results.competencyType'
         ])->findOrFail($assessmentId);
 
         // Set group criteria for merging (course_id, exam_type_id, qualification_type_id, campus_id)
@@ -40,16 +41,24 @@ class ViewAssessmentResults extends ModalComponent
 
         // Get all assessments for this group
         $this->allAssessments = Assessment::with([
-            'course', 'campus', 'academicYear', 'qualificationType', 'examType', 'assessmentCenter', 'assessor',
-            'results.student.user', 'results.competencyType'
+            'course', 'campus', 'academicYear', 'qualificationType', 'examType',
+            'schedules.assessmentCenter', 'schedules.assessor',
+            'schedules.results.student.user', 'schedules.results.competencyType'
         ])->where($this->groupCriteria)->get();
 
-        // Load available filters
-        $this->assessmentCenters = $this->allAssessments->pluck('assessmentCenter')
+        // Load available filters from schedules
+        $allSchedules = collect();
+        foreach ($this->allAssessments as $assessment) {
+            foreach ($assessment->schedules as $schedule) {
+                $allSchedules->push($schedule);
+            }
+        }
+
+        $this->assessmentCenters = $allSchedules->pluck('assessmentCenter')
             ->unique('id')->filter()->values();
-        $this->assessors = $this->allAssessments->pluck('assessor')
+        $this->assessors = $allSchedules->pluck('assessor')
             ->unique('id')->filter()->values();
-        $this->assessmentDates = $this->allAssessments->pluck('assessment_date')
+        $this->assessmentDates = $allSchedules->pluck('assessment_date')
             ->filter()->map(function ($date) {
                 if ($date instanceof \Carbon\Carbon) {
                     return $date->format('Y-m-d');
@@ -68,34 +77,45 @@ class ViewAssessmentResults extends ModalComponent
 
     public function loadAssessmentByFilters()
     {
-        // Filter assessments based on selected criteria
-        $this->filteredAssessments = $this->allAssessments->filter(function ($assessment) {
-            $matchesCenter = $this->selectedAssessmentCenter 
-                ? $assessment->assessment_center_id == $this->selectedAssessmentCenter
-                : true;
-                
-            $matchesAssessor = $this->selectedAssessor 
-                ? $assessment->assessor_id == $this->selectedAssessor 
-                : true;
-                
-            $matchesDate = $this->selectedDate 
-                ? ($assessment->assessment_date && $assessment->assessment_date instanceof \Carbon\Carbon 
-                    ? $assessment->assessment_date->format('Y-m-d') == $this->selectedDate 
-                    : false)
-                : true;
-                
-            return $matchesCenter && $matchesAssessor && $matchesDate;
+        // Collect all schedules that match the filter criteria
+        $filteredSchedules = collect();
+        
+        foreach ($this->allAssessments as $assessment) {
+            foreach ($assessment->schedules as $schedule) {
+                $matchesCenter = $this->selectedAssessmentCenter 
+                    ? $schedule->assessment_center_id == $this->selectedAssessmentCenter
+                    : true;
+                    
+                $matchesAssessor = $this->selectedAssessor 
+                    ? $schedule->assessor_id == $this->selectedAssessor 
+                    : true;
+                    
+                $matchesDate = $this->selectedDate 
+                    ? ($schedule->assessment_date && $schedule->assessment_date instanceof \Carbon\Carbon 
+                        ? $schedule->assessment_date->format('Y-m-d') == $this->selectedDate 
+                        : false)
+                    : true;
+                    
+                if ($matchesCenter && $matchesAssessor && $matchesDate) {
+                    $filteredSchedules->push($schedule);
+                }
+            }
+        }
+
+        // Get assessments that have matching schedules
+        $this->filteredAssessments = $this->allAssessments->filter(function ($assessment) use ($filteredSchedules) {
+            return $filteredSchedules->contains(function ($schedule) use ($assessment) {
+                return $schedule->assessment_id === $assessment->id;
+            });
         })->values();
 
         // Set the primary assessment for display
         $this->assessment = $this->filteredAssessments->first() ?: $this->allAssessments->first();
         
-        // Merge all results from filtered assessments
+        // Merge all results from filtered schedules
         $this->allResults = collect();
-        foreach ($this->filteredAssessments as $assessment) {
-            // Use results() to make sure we always get a fresh collection of models
-            $results = $assessment->results;
-            foreach ($results as $result) {
+        foreach ($filteredSchedules as $schedule) {
+            foreach ($schedule->results as $result) {
                 $this->allResults->push($result);
             }
         }
@@ -112,7 +132,8 @@ class ViewAssessmentResults extends ModalComponent
     {
         // Only count students with a valid result (not dropped, not null)
         $validResults = $this->allResults->filter(function($result) {
-            return $result->competency_type_id && $result->competency_type_id != 4;
+            return $result->competency_type_id && 
+                   ($result->competencyType?->name ?? '') !== 'Dropped';
         });
         
         $competent = $validResults->filter(function($result) {

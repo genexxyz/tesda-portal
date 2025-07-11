@@ -8,6 +8,19 @@
     />
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Flash Messages -->
+        @if (session()->has('success'))
+            <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if (session()->has('error'))
+            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+        @endif
+
         <!-- Header Stats -->
         <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
             <div class="bg-white overflow-hidden shadow rounded-lg">
@@ -249,8 +262,7 @@
                         <x-tables.table-header>Assessment Details</x-tables.table-header>
                         <x-tables.table-header>Course</x-tables.table-header>
                         <x-tables.table-header>Qualification</x-tables.table-header>
-                        <x-tables.table-header>Assessment Date</x-tables.table-header>
-                        <x-tables.table-header>Assessor</x-tables.table-header>
+                        <x-tables.table-header>Assessment Dates</x-tables.table-header>
                         <x-tables.table-header>Students</x-tables.table-header>
                         <x-tables.table-header>Status</x-tables.table-header>
                         <x-tables.table-header>Actions</x-tables.table-header>
@@ -271,32 +283,54 @@
                                             {{ $assessment->examType?->type ?? 'N/A' }}
                                         </div>
                                         <div class="text-sm text-gray-500">
-                                            {{ $assessment->assessmentCenter?->name }}
+                                            {{ $assessment->academicYear?->description }}
                                         </div>
                                     </div>
                                 </div>
                             </x-tables.table-cell>
                             <x-tables.table-cell>
-                            
                                 <div class="text-sm text-gray-900">{{ $assessment->course?->code }}</div>
                             </x-tables.table-cell>
                             <x-tables.table-cell>
                                 <div class="text-sm text-gray-900">{{ $assessment->qualificationType?->code }} - {{ $assessment->qualificationType?->level }}</div>
-                                
                             </x-tables.table-cell>
                             <x-tables.table-cell>
-                                <div class="text-sm text-gray-900">
-                                    {{ $assessment->assessment_date?->format('M j, Y') }}
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    {{ $assessment->assessment_date?->diffForHumans() }}
-                                </div>
+                                @if($assessment->schedules->isNotEmpty())
+                                    @if($assessment->schedules->count() === 1)
+                                        @php $schedule = $assessment->schedules->first(); @endphp
+                                        <div class="text-sm text-gray-900 font-medium">
+                                            {{ $schedule->assessment_date?->format('M j, Y') }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ $schedule->assessment_date?->diffForHumans() }}
+                                        </div>
+                                    @else
+                                        <div class="text-sm text-gray-900 font-medium">
+                                            {{ $assessment->schedules->count() }} Dates
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            @foreach($assessment->schedules->sortBy('assessment_date')->take(3) as $schedule)
+                                                {{ $schedule->assessment_date?->format('M j') }}@if(!$loop->last), @endif
+                                            @endforeach
+                                            @if($assessment->schedules->count() > 3)
+                                                <span class="text-gray-400">...</span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                @else
+                                    <div class="text-sm text-gray-500">Not scheduled</div>
+                                @endif
                             </x-tables.table-cell>
                             <x-tables.table-cell>
-                                <div class="text-sm text-gray-900">{{ $assessment->assessor?->name }}</div>
-                            </x-tables.table-cell>
-                            <x-tables.table-cell>
-                                <div class="text-sm text-gray-900">{{ $assessment->results->count() }} students</div>
+                                @php
+                                    $totalStudents = $assessment->schedules->sum(function($schedule) {
+                                        return $schedule->results->count();
+                                    });
+                                @endphp
+                                <div class="text-sm text-gray-900">{{ $totalStudents }} students</div>
+                                @if($assessment->schedules->count() > 1)
+                                    <div class="text-xs text-gray-500">Across {{ $assessment->schedules->count() }} schedules</div>
+                                @endif
                             </x-tables.table-cell>
                             <x-tables.table-cell>
                                 @php
@@ -324,24 +358,25 @@
                             </x-tables.table-cell>
                             <x-tables.table-cell>
     <div class="flex items-center space-x-2 w-35">
-        <button wire:click="$dispatch('openModal', { component: 'modals.program-head.view-assessment-details', arguments: { assessmentId: {{ $assessment->id }} } })"
-                class="text-blue-600 hover:text-blue-900 text-sm font-medium cursor-pointer">
+        <a wire:navigate href="{{ route('program-head.assessment-details', $assessment->id) }}"
+           class="text-blue-600 hover:text-blue-900 text-sm font-medium">
             <x-icon name="eye" style="fas" class="w-4 h-4 mr-1" />
             View
-        </button>
-        @if($isUpcoming)
-            <button wire:click="$dispatch('openModal', { component: 'modals.program-head.edit-assessment', arguments: { assessmentId: {{ $assessment->id }} } })"
-                    class="text-green-600 hover:text-green-900 text-sm font-medium cursor-pointer">
-                <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
-                Edit
-            </button>
-        @endif
+        </a>
         @if($isToday || $isCompleted)
             <a wire:navigate href="{{ route('program-head.submit-results', $assessment->id) }}"
                class="text-purple-600 hover:text-purple-900 text-sm font-medium">
                 <x-icon name="clipboard-check" style="fas" />
                 Results
             </a>
+        @endif
+        @if($assessment->schedules->count() === 0)
+            <button wire:click="deleteAssessment({{ $assessment->id }})" 
+                    wire:confirm="Are you sure you want to delete this assessment? This action cannot be undone."
+                    class="text-red-600 hover:text-red-900 text-sm font-medium cursor-pointer">
+                <x-icon name="trash" style="fas" class="w-4 h-4 mr-1" />
+                Delete
+            </button>
         @endif
     </div>
 </x-tables.table-cell>

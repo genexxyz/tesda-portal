@@ -26,26 +26,55 @@
             </div>
         </div>
 
-        <!-- Display validation errors -->
+        <!-- Display validation errors and notices -->
         @if(!empty($validationErrors))
-            <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <x-icon name="exclamation-triangle" class="h-5 w-5 text-red-400" />
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800">
-                            Please fix the following errors:
-                        </h3>
-                        <div class="mt-2 text-sm text-red-700">
-                            <ul class="list-disc pl-5 space-y-1">
-                                @foreach($validationErrors as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+            <div class="mb-4 space-y-3">
+                @if(isset($validationErrors['partial_duplicate']))
+                    <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <x-icon name="exclamation-triangle" class="h-5 w-5 text-yellow-400" />
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800">
+                                    Existing Assessment Schedule Found
+                                </h3>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    {{ $validationErrors['partial_duplicate'] }}
+                                </div>
+                                <div class="mt-3">
+                                    <button type="button" wire:click="save" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                                        Add Students to Existing Schedule
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endif
+
+                @if(array_diff(array_keys($validationErrors), ['partial_duplicate']))
+                    <div class="p-4 bg-red-50 border border-red-200 rounded-md">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <x-icon name="exclamation-triangle" class="h-5 w-5 text-red-400" />
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">
+                                    Please fix the following errors:
+                                </h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        @foreach($validationErrors as $key => $error)
+                                            @if($key !== 'partial_duplicate')
+                                                <li>{{ $error }}</li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         @endif
 
@@ -225,7 +254,7 @@
                                     <label for="student_{{ $student->id }}" class="ml-3 flex-1">
                                         <div class="flex items-center justify-between">
                                             <div>
-                                                <div class="text-sm font-medium text-gray-700">{{ $student->user->name }}</div>
+                                                <div class="text-sm font-medium text-gray-700">{{ $student->full_name }}</div>
                                                 <div class="text-xs text-gray-500">
                                                     {{ $student->student_id }} • {{ $student->course->code ?? 'No Course' }}
                                                     

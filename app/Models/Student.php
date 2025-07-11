@@ -44,7 +44,7 @@ class Student extends Model
     public function getFullNameAttribute()
     {
         if ($this->user) {
-            return trim($this->user->first_name . ' ' . ($this->user->middle_name ? $this->user->middle_name . ' ' : '') . $this->user->last_name);
+            return trim($this->user->last_name . ', ' . $this->user->first_name . ($this->user->middle_name ? ' ' . $this->user->middle_name : ''));
         }
         return 'N/A';
     }

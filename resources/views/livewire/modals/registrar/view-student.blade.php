@@ -1,19 +1,23 @@
 <div>
     <x-modals.modal-header 
         title="Student Details"
-        subtitle="Comprehensive information for {{ $student->full_n                                            <div>
-                                                <strong>Assessment Date:</strong> 
-                                                {{ $result->assessmentSchedule?->assessment_date ? $result->assessmentSchedule->assessment_date->format('F j, Y') : 'Not specified' }}
-                                            </div>
-                                            <div>
-                                                <strong>Exam Type:</strong> 
-                                                {{ $result->assessmentSchedule?->assessment?->examType?->name ?? 'Not specified' }}
-                                            </div>
-                                            <div>
-                                                <strong>Assessor:</strong> 
-                                                {{ $result->assessmentSchedule?->assessor?->name ?? 'Not specified' }}
-                                            </div>    <x-modals.modal-body>
+        subtitle="Comprehensive information for {{ $student->full_name }}" />
+
+    <x-modals.modal-body>
         <div class="space-y-6">
+            <!-- Student Status Alert -->
+            @if($student->user && $student->user->status === 'dropped')
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <x-icon name="user-times" style="fas" class="w-5 h-5 text-red-600 mr-2" />
+                        <div>
+                            <h3 class="text-sm font-medium text-red-800">Student Dropped</h3>
+                            <p class="text-sm text-red-700">This student has been marked as dropped from the program.</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Student Basic Information -->
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
@@ -28,6 +32,25 @@
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Email Address</dt>
                         <dd class="text-sm text-gray-900">{{ $student->user?->email ?? 'N/A' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Status</dt>
+                        <dd class="text-sm text-gray-900">
+                            @if($student->user)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                    {{ $student->user->status === 'active' ? 'bg-green-100 text-green-800' : 
+                                       ($student->user->status === 'dropped' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800') }}">
+                                    @if($student->user->status === 'dropped')
+                                        <x-icon name="user-times" style="fas" class="w-3 h-3 mr-1" />
+                                    @elseif($student->user->status === 'active')
+                                        <x-icon name="user-check" style="fas" class="w-3 h-3 mr-1" />
+                                    @endif
+                                    {{ ucfirst($student->user->status) }}
+                                </span>
+                            @else
+                                <span class="text-gray-400 italic">N/A</span>
+                            @endif
+                        </dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Student ID</dt>
@@ -129,12 +152,14 @@
                                     <div class="flex-1">
                                         <div class="flex items-center space-x-3 mb-2">
                                             <h4 class="text-sm font-medium text-gray-900">
-                                                {{ $result->assessment?->qualificationType?->code ?? 'Unknown Qualification' }}
-                                                {{ $result->assessment?->qualificationType->level ?? 'Unknown Level' }}
+                                                {{ $result->assessmentSchedule?->assessment?->qualificationType?->name ?? 'Unknown Qualification' }}
+                                                {{ $result->assessmentSchedule?->assessment?->qualificationType?->level ?? '' }}
                                             </h4>
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
                                                 {{ $result->competencyType?->name === 'Competent' ? 'bg-green-100 text-green-800' : 
-                                                   ($result->competencyType?->name === 'Not Yet Competent' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                                   ($result->competencyType?->name === 'Not Yet Competent' ? 'bg-red-100 text-red-800' : 
+                                                   ($result->competencyType?->name === 'Absent' ? 'bg-orange-100 text-orange-800' :
+                                                   ($result->competencyType?->name === 'Dropped' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'))) }}">
                                                 {{ $result->competencyType?->name ?? 'Pending' }}
                                             </span>
                                         </div>
@@ -142,19 +167,19 @@
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-gray-600">
                                             <div>
                                                 <strong>Assessment Date:</strong> 
-                                                {{ $result->assessment?->assessment_date ? $result->assessment->assessment_date->format('F j, Y') : 'Not specified' }}
+                                                {{ $result->assessmentSchedule?->assessment_date ? $result->assessmentSchedule->assessment_date->format('F j, Y') : 'Not specified' }}
                                             </div>
                                             <div>
                                                 <strong>Exam Type:</strong> 
-                                                {{ $result->assessment?->examType?->type ?? 'Not specified' }}
+                                                {{ $result->assessmentSchedule?->assessment?->examType?->type ?? 'Not specified' }}
                                             </div>
                                             <div>
                                                 <strong>Assessor:</strong> 
-                                                {{ $result->assessment?->assessor?->name ?? 'Not specified' }}
+                                                {{ $result->assessmentSchedule?->assessor?->name ?? 'Not specified' }}
                                             </div>
                                             <div>
                                                 <strong>Assessment Center:</strong> 
-                                                {{ $result->assessment?->assessmentCenter?->name ?? 'Not specified' }}
+                                                {{ $result->assessmentSchedule?->assessment?->assessmentCenter?->name ?? 'Not specified' }}
                                             </div>
                                         </div>
 

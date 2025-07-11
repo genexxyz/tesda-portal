@@ -18,6 +18,7 @@ class Students extends Component
     
     public $search = '';
     public $courseFilter = '';
+    public $statusFilter = '';
     
     #[Layout('layouts.app')]
     #[Title('Student Management')]
@@ -41,10 +42,16 @@ class Students extends Component
         $this->resetPage();
     }
 
+    public function updatedStatusFilter()
+    {
+        $this->resetPage();
+    }
+
     public function clearFilters()
     {
         $this->search = '';
         $this->courseFilter = '';
+        $this->statusFilter = '';
         $this->resetPage();
     }
 
@@ -132,6 +139,11 @@ class Students extends Component
                           })
                           ->when($this->courseFilter, function($query) {
                               $query->where('course_id', $this->courseFilter);
+                          })
+                          ->when($this->statusFilter, function($query) {
+                              $query->whereHas('user', function($userQuery) {
+                                  $userQuery->where('status', $this->statusFilter);
+                              });
                           })
                           ->join('users', 'students.user_id', '=', 'users.id')
                           ->orderBy('users.last_name', 'asc')

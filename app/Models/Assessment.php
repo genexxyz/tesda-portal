@@ -51,11 +51,18 @@ class Assessment extends Model
     }
 
     /**
-     * Get the results associated with the assessment.
+     * Get the results associated with the assessment through schedules.
      */
     public function results()
     {
-        return $this->hasMany(Result::class);
+        return $this->hasManyThrough(
+            Result::class,
+            AssessmentSchedule::class,
+            'assessment_id', // Foreign key on assessment_schedules table
+            'assessment_schedule_id', // Foreign key on results table
+            'id', // Local key on assessments table
+            'id' // Local key on assessment_schedules table
+        );
     }
     
     /**

@@ -79,10 +79,8 @@ class ViewResults extends Component
             'examType', 
             'qualificationType',
             'academicYear',
-            'schedules.results.student',
-            'schedules.results.competencyType',
-            'schedules.assessor',
-            'schedules.assessmentCenter'
+            'results.student',
+            'results.competencyType'
         ])
         ->whereIn('course_id', $managedCourseIds)
         ->where('campus_id', $programHeadCampusId)

@@ -30,4 +30,9 @@ class QualificationType extends Model
     {
         return $this->hasMany(Result::class);
     }
+    
+    public function getDescriptionAttribute()
+    {
+        return $this->code . ' - ' . $this->level;
+    }
 }

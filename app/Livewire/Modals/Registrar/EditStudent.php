@@ -6,9 +6,13 @@ use App\Models\Student;
 use App\Models\Course;
 use App\Models\Academic;
 use App\Models\User;
+use App\Models\Result;
+use App\Models\CompetencyType;
 use LivewireUI\Modal\ModalComponent;
 use Livewire\Attributes\Rule;
+use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class EditStudent extends ModalComponent
 {
@@ -146,6 +150,41 @@ class EditStudent extends ModalComponent
             ]);
         }
     }
+
+    public function markAsDropped()
+    {
+        
+        try {
+            DB::transaction(function () {
+                // Mark the user as dropped
+                if ($this->student->user) {
+                    $this->student->user->update(['status' => 'dropped']);
+                }
+
+                // Get the "Dropped" competency type
+                $droppedCompetencyType = CompetencyType::where('name', 'Dropped')->first();
+
+            if ($droppedCompetencyType) {
+                // Update all results with null competency_type_id for this student to "Dropped"
+                Result::where('student_id', $this->student->id)
+                      ->whereNull('competency_type_id')
+                      ->update(['competency_type_id' => $droppedCompetencyType->id]);
+            }
+            });
+
+            $this->dispatch('swal:alert', 
+                type: 'success',
+                text:  'The student has been marked as dropped and all pending assessments have been updated.',
+            );
+
+            $this->dispatch('student-updated');
+            $this->closeModal();
+
+        } catch (\Exception $e) {
+            $e->getMessage();
+        }
+    }
+
 
     public function render()
     {

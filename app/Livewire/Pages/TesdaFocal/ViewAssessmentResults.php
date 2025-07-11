@@ -40,17 +40,22 @@ class ViewAssessmentResults extends Component
         $notYetCompetent = 0;
         $absent = 0;
         
-        // Collect results from all schedules
+        // Collect results from all schedules - only count valid results (not dropped, not null)
         foreach ($this->assessment->schedules as $schedule) {
-            $total += $schedule->results->count();
-            $completed += $schedule->results->whereNotNull('competency_type_id')->count();
-            $competent += $schedule->results->filter(function($result) {
+            $validResults = $schedule->results->filter(function($result) {
+                return $result->competency_type_id && 
+                       ($result->competencyType->name ?? '') !== 'Dropped';
+            });
+            
+            $total += $validResults->count();
+            $completed += $validResults->count();
+            $competent += $validResults->filter(function($result) {
                 return $result->competencyType?->name === 'Competent';
             })->count();
-            $notYetCompetent += $schedule->results->filter(function($result) {
+            $notYetCompetent += $validResults->filter(function($result) {
                 return $result->competencyType?->name === 'Not Yet Competent';
             })->count();
-            $absent += $schedule->results->filter(function($result) {
+            $absent += $validResults->filter(function($result) {
                 return $result->competencyType?->name === 'Absent';
             })->count();
         }

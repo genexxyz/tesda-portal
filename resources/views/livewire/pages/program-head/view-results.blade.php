@@ -24,7 +24,7 @@
                     placeholder="{{ $courseFilter ? 'All Qualification ' : 'Select Course First' }}"
                     icon="award"
                     :options="$qualificationTypes"
-                    nameField="name"
+                    textField="description"
                     :disabled="!$courseFilter" />
             </div>
 

@@ -80,7 +80,7 @@
                         </dd>
                     </div>
                     <div class="md:col-span-2">
-                        <dt class="text-sm font-medium text-gray-500">Available Campuses</dt>
+                        <dt class="text-sm font-medium text-gray-500">Campus</dt>
                         <dd class="text-sm text-gray-900">
                             @if($student->course && $student->course->campuses->isNotEmpty())
                                 <div class="flex flex-wrap gap-2 mt-1">
@@ -119,14 +119,27 @@
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1">
                                         <div class="flex items-center space-x-3 mb-2">
-                                            <h4 class="text-sm font-medium text-gray-900">
-                                                {{ $result->assessment?->qualificationType?->name ?? 'Unknown Qualification' }}
-                                            </h4>
+                                            <div class="flex-1">
+                                                <h4 class="text-sm font-medium text-gray-900">
+                                                    {{ $result->assessmentSchedule?->assessment?->qualificationType?->name ?? 'Unknown Qualification' }}
+                                                </h4>
+                                                @if($result->assessmentSchedule?->assessment?->qualificationType?->level)
+                                                    <p class="text-xs text-blue-600">
+                                                        {{ $result->assessmentSchedule->assessment->qualificationType->level }}
+                                                    </p>
+                                                @endif
+                                            </div>
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
                                                 {{ $result->competencyType?->name === 'Competent' ? 'bg-green-100 text-green-800' : 
-                                                   ($result->competencyType?->name === 'Not Yet Competent' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                                   ($result->competencyType?->name === 'Not Yet Competent' ? 'bg-red-100 text-red-800' : 
+                                                   ($result->competencyType?->name === 'Absent' ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800')) }}">
                                                 {{ $result->competencyType?->name ?? 'Pending' }}
                                             </span>
+                                        </div>
+                                        
+                                        <div class="text-xs text-gray-500 mb-2">
+                                            <strong>Course:</strong> {{ $result->assessmentSchedule?->assessment?->course?->name ?? 'Not specified' }} 
+                                            ({{ $result->assessmentSchedule?->assessment?->course?->code ?? 'N/A' }})
                                         </div>
                                         
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-gray-600">
@@ -136,7 +149,7 @@
                                             </div>
                                             <div>
                                                 <strong>Exam Type:</strong> 
-                                                {{ $result->assessmentSchedule?->assessment?->examType?->name ?? 'Not specified' }}
+                                                {{ $result->assessmentSchedule?->assessment?->examType?->type ?? 'Not specified' }}
                                             </div>
                                             <div>
                                                 <strong>Assessor:</strong> 
@@ -144,7 +157,7 @@
                                             </div>
                                             <div>
                                                 <strong>Assessment Center:</strong> 
-                                                {{ $result->assessment?->assessmentCenter?->name ?? 'Not specified' }}
+                                                {{ $result->assessmentSchedule?->assessmentCenter?->name ?? 'Not specified' }}
                                             </div>
                                         </div>
 
@@ -175,7 +188,7 @@
                         <x-icon name="chart-bar" style="fas" class="w-5 h-5 mr-2 text-yellow-600" />
                         Assessment Summary
                     </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="text-center">
                             <div class="text-2xl font-bold text-gray-900">{{ $student->results->count() }}</div>
                             <div class="text-sm text-gray-600">Total Assessments</div>
@@ -191,6 +204,12 @@
                                 {{ $student->results->where('competencyType.name', 'Not Yet Competent')->count() }}
                             </div>
                             <div class="text-sm text-gray-600">Not Yet Competent</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-orange-600">
+                                {{ $student->results->where('competencyType.name', 'Absent')->count() }}
+                            </div>
+                            <div class="text-sm text-gray-600">Absent</div>
                         </div>
                     </div>
                 </div>

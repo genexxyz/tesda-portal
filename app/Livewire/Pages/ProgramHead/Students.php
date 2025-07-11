@@ -100,7 +100,12 @@ class Students extends Component
             $query->where('academic_year_id', $this->academicYearFilter);
         }
 
-        $students = $query->orderBy('student_id', 'asc')->paginate(10);
+        $query->join('users', 'students.user_id', '=', 'users.id')
+              ->orderBy('users.last_name', 'asc')
+              ->orderBy('users.first_name', 'asc')
+              ->select('students.*');
+
+        $students = $query->paginate(10);
 
         return view('livewire.pages.program-head.students', [
             'students' => $students,

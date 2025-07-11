@@ -68,7 +68,10 @@ class ViewResults extends Component
 
     public function getQualificationTypesProperty(): \Illuminate\Support\Collection
     {
-        $query = Assessment::with('qualificationType');
+        $query = Assessment::with('qualificationType')
+            ->whereHas('schedules', function($q) {
+                $q->where('assessment_date', '<', now());
+            });
 
         // Default to active academic year
         if ($this->academicYearFilter) {
@@ -106,11 +109,17 @@ class ViewResults extends Component
             'qualificationType',
             'campus',
             'academicYear',
+            'schedules' => function ($q) {
+                $q->where('assessment_date', '<', now());
+            },
             'schedules.results.student',
             'schedules.results.competencyType',
             'schedules.assessmentCenter',
             'schedules.assessor'
-        ]);
+        ])
+        ->whereHas('schedules', function($q) {
+            $q->where('assessment_date', '<', now());
+        });
 
         // Default to active academic year if no filter is set
         if ($this->academicYearFilter) {
@@ -154,24 +163,28 @@ class ViewResults extends Component
         // Process results from all schedules for this assessment
         foreach ($assessment->schedules as $schedule) {
             foreach ($schedule->results as $result) {
-                if ($result->competency_type_id && $result->competency_type_id !== 4) { // Exclude Dropped (ID = 4)
-                    $totalStudents++;
+                if ($result->competency_type_id) {
                     switch ($result->competencyType->name ?? '') {
                         case 'Competent':
                             $competentCount++;
                             $totalAssessed++;
+                            $totalStudents++;
                             break;
                         case 'Not Yet Competent':
                             $notYetCompetentCount++;
                             $totalAssessed++;
+                            $totalStudents++;
                             break;
                         case 'Absent':
                             $absentCount++;
+                            $totalStudents++;
+                            break;
+                        case 'Dropped':
+                            // Don't count dropped students in any category
                             break;
                     }
-                } else {
-                    $absentCount++;
                 }
+                // Don't count students with null competency_type_id - they haven't been assessed yet
             }
         }
 

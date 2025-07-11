@@ -68,15 +68,36 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Assessment Date</dt>
-                        <dd class="mt-1 text-sm text-gray-900 font-medium">{{ $assessment->assessment_date?->format('F j, Y') }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900 font-medium">
+                            @if($assessment->schedules->isNotEmpty())
+                                {{ $assessment->schedules->sortByDesc('assessment_date')->first()->assessment_date?->format('F j, Y') }}
+                                @if($assessment->schedules->count() > 1)
+                                    <span class="text-xs text-gray-500">(+{{ $assessment->schedules->count() - 1 }} more)</span>
+                                @endif
+                            @else
+                                N/A
+                            @endif
+                        </dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Assessor</dt>
-                        <dd class="mt-1 text-sm text-gray-900 font-medium">{{ $assessment->assessor?->name }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900 font-medium">
+                            @if($assessment->schedules->isNotEmpty())
+                                {{ $assessment->schedules->sortByDesc('assessment_date')->first()->assessor?->name }}
+                            @else
+                                N/A
+                            @endif
+                        </dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Assessment Center</dt>
-                        <dd class="mt-1 text-sm text-gray-900 font-medium">{{ $assessment->assessmentCenter?->name }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900 font-medium">
+                            @if($assessment->schedules->isNotEmpty())
+                                {{ $assessment->schedules->sortByDesc('assessment_date')->first()->assessmentCenter?->name }}
+                            @else
+                                N/A
+                            @endif
+                        </dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Academic Year</dt>
