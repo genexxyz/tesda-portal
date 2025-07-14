@@ -283,7 +283,7 @@
                                             {{ $assessment->examType?->type ?? 'N/A' }}
                                         </div>
                                         <div class="text-sm text-gray-500">
-                                            {{ $assessment->academicYear?->description }}
+                                            {{ $assessment->academicYear?->formatted_description }}
                                         </div>
                                     </div>
                                 </div>
@@ -324,7 +324,9 @@
                             <x-tables.table-cell>
                                 @php
                                     $totalStudents = $assessment->schedules->sum(function($schedule) {
-                                        return $schedule->results->count();
+                                        return $schedule->results->filter(function($result) {
+                                            return !$result->competencyType || $result->competencyType->name !== 'Dropped';
+                                        })->count();
                                     });
                                 @endphp
                                 <div class="text-sm text-gray-900">{{ $totalStudents }} students</div>

@@ -112,11 +112,6 @@
                                     <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
                                     Edit
                                 </button>
-                                <button wire:click="$dispatch('openModal', { component: 'modals.admin.assessment.manage-center-assessors', arguments: { centerId: {{ $center->id }} } })"
-                                        class="text-green-600 hover:text-green-900 text-sm font-medium">
-                                    <x-icon name="user-tie" style="fas" class="w-4 h-4 mr-1" />
-                                    Assessors
-                                </button>
                                 <button wire:click="confirmDelete({{ $center->id }})"
                                         class="text-red-600 hover:text-red-900 text-sm font-medium">
                                     <x-icon name="trash" style="fas" class="w-4 h-4 mr-1" />

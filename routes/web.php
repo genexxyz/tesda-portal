@@ -22,6 +22,12 @@ Route::middleware('guest')->group(function () {
 
 // Protected routes
 Route::middleware('auth')->group(function () {
+    
+    
+    // Profile route accessible to all authenticated users
+    Route::get('/user/profile', \App\Livewire\Pages\User\Profile::class)->name('profile');
+    // Change password route
+    Route::get('/user/change-password', \App\Livewire\Pages\User\ChangePassword::class)->name('change-password');
 
     // Admin routes
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
@@ -33,6 +39,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/qualification-types', QualificationTypes::class)->name('qualification-types');
         Route::get('/registrars', Registrars::class)->name('registrars');
         Route::get('/assessment-management', AssessmentManagement::class)->name('assessment-management');
+        Route::get('/students', \App\Livewire\Pages\Admin\Students::class)->name('students');
     });
 
     // Registrar routes
@@ -56,6 +63,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', \App\Livewire\Pages\TesdaFocal\TesdaFocalDashboard::class)->name('dashboard');
         Route::get('/view-results', \App\Livewire\Pages\TesdaFocal\ViewResults::class)->name('view-results');
         // Using modal for viewing assessment results instead of route
+    });
+
+    //Student routes
+    Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
+        Route::get('/dashboard', \App\Livewire\Pages\Student\Dashboard::class)->name('dashboard');
+        
     });
 
     Route::post('/logout', function () {

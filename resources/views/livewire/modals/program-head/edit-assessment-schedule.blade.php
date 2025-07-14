@@ -46,7 +46,7 @@
                     </div>
                     <div>
                         <span class="text-blue-700 font-medium">Academic Year:</span>
-                        <div class="text-blue-800">{{ $schedule->assessment->academicYear->description }}</div>
+                        <div class="text-blue-800">{{ $schedule->assessment->academicYear->formatted_description }}</div>
                     </div>
                 </div>
             </div>

@@ -6,7 +6,6 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use App\Models\Student;
 use App\Models\Course;
-use App\Models\Campus;
 use App\Models\Academic;
 use App\Models\ProgramHead;
 use Livewire\Component;
@@ -20,17 +19,15 @@ class Students extends Component
 
     public $search = '';
     public $courseFilter = '';
-    public $campusFilter = '';
-    public $academicYearFilter = '';
+    public $statusFilter = '';
 
-    protected $queryString = ['search', 'courseFilter', 'campusFilter', 'academicYearFilter'];
+    protected $queryString = ['search', 'courseFilter', 'statusFilter'];
 
     public function clearFilters()
     {
         $this->search = '';
         $this->courseFilter = '';
-        $this->campusFilter = '';
-        $this->academicYearFilter = '';
+        $this->statusFilter = '';
     }
 
     public function getCoursesProperty()
@@ -43,21 +40,7 @@ class Students extends Component
             ->unique('id');
     }
 
-    public function getCampusesProperty()
-    {
-        // Get campuses that have courses assigned to this program head
-        $courseIds = $this->courses->pluck('id');
-        
-        return Campus::whereHas('courses', function ($query) use ($courseIds) {
-            $query->whereIn('courses.id', $courseIds);
-        })->get();
-    }
-
-    public function getAcademicYearsProperty()
-    {
-        return Academic::where('status', true)->orderBy('start_year', 'desc')->get();
-    }
-#[Layout('layouts.app')]
+    #[Layout('layouts.app')]
     #[Title('Dashboard')]
     #[On('student-updated')]
     public function refresh()
@@ -71,7 +54,11 @@ class Students extends Component
         $managedCourseIds = $this->courses->pluck('id');
 
         $query = Student::with(['user', 'course', 'academicYear'])
-            ->whereIn('course_id', $managedCourseIds);
+            ->whereIn('course_id', $managedCourseIds)
+            // Only show students from active academic year
+            ->whereHas('academicYear', function ($q) {
+                $q->where('is_active', true);
+            });
 
         // Apply search filter
         if ($this->search) {
@@ -88,16 +75,11 @@ class Students extends Component
             $query->where('course_id', $this->courseFilter);
         }
 
-        // Apply campus filter
-        if ($this->campusFilter) {
-            $query->whereHas('course.campuses', function ($q) {
-                $q->where('campuses.id', $this->campusFilter);
+        // Apply status filter
+        if ($this->statusFilter) {
+            $query->whereHas('user', function ($q) {
+                $q->where('status', $this->statusFilter);
             });
-        }
-
-        // Apply academic year filter
-        if ($this->academicYearFilter) {
-            $query->where('academic_year_id', $this->academicYearFilter);
         }
 
         $query->join('users', 'students.user_id', '=', 'users.id')
@@ -107,11 +89,19 @@ class Students extends Component
 
         $students = $query->paginate(10);
 
+        // Calculate dropped count for the managed courses (only from active academic year)
+        $droppedCount = Student::whereIn('course_id', $managedCourseIds)
+            ->whereHas('academicYear', function ($q) {
+                $q->where('is_active', true);
+            })
+            ->whereHas('user', function ($q) {
+                $q->where('status', 'dropped');
+            })->count();
+
         return view('livewire.pages.program-head.students', [
             'students' => $students,
             'courses' => $this->courses,
-            'campuses' => $this->campuses,
-            'academicYears' => $this->academicYears,
+            'droppedCount' => $droppedCount,
         ]);
     }
 }

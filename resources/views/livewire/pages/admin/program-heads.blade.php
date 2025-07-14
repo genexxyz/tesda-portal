@@ -169,13 +169,8 @@
                                         <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
                                         Edit
                                     </button>
-                                    <button wire:click="$dispatch('openModal', { component: 'modals.admin.manage-program-head-courses', arguments: { programHeadId: {{ $programHead->id }} } })"
-                                            class="text-green-600 hover:text-green-900 text-sm font-medium">
-                                        <x-icon name="graduation-cap" style="fas" class="w-4 h-4 mr-1" />
-                                        Courses
-                                    </button>
                                     <button wire:click="toggleStatus({{ $programHead->id }})"
-                                            class="text-yellow-600 hover:text-yellow-900 text-sm font-medium">
+                                            class="text-green-600 hover:text-green-900 text-sm font-medium">
                                         {{ $programHead->status === 'active' ? 'Deactivate' : 'Activate' }}
                                     </button>
                                     <button wire:click="confirmDelete({{ $programHead->id }})"

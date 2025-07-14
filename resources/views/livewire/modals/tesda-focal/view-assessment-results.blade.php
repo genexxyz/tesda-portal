@@ -101,7 +101,7 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Academic Year</dt>
-                        <dd class="mt-1 text-sm text-gray-900 font-medium">{{ $assessment->academicYear?->description }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900 font-medium">{{ $assessment->academicYear?->formatted_description }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Total Students</dt>
@@ -245,9 +245,7 @@
                                 <tr>
                                     <th wire:click="sort('student_name')" class="w-80 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                                         Student
-                                        @if($sortField === 'student_name')
-                                            <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
-                                        @endif
+                                        
                                     </th>
                                     <th wire:click="sort('student_id')" class="w-40 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                                         Student ID
@@ -290,8 +288,8 @@
                                                 <div class="ml-4">
                                                     <button 
                                                         wire:click="$dispatch('openModal', { component: 'modals.tesda-focal.view-student-details', arguments: { studentId: {{ $result->student->id }} } })"
-                                                        class="text-sm font-medium text-blue-600 hover:text-blue-900 hover:underline cursor-pointer">
-                                                        {{ $result->student->user->first_name ?? 'N/A' }} {{ $result->student->user->last_name ?? '' }}
+                                                        class="text-sm font-medium text-blue-600 underline hover:text-blue-900 hover:underline cursor-pointer">
+                                                        {{ $result->student->full_name ?? 'N/A' }}
                                                     </button>
                                                     <div class="text-sm text-gray-500">{{ $result->student->user->email ?? 'N/A' }}</div>
                                                 </div>

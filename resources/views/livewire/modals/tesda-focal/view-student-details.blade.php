@@ -14,7 +14,17 @@
                 <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Full Name</dt>
-                        <dd class="text-sm text-gray-900 font-medium">{{ $student->full_name }}</dd>
+                        <dd class="text-sm text-gray-900 font-medium">
+                            <div class="flex items-center space-x-2">
+                                <span>{{ $student->full_name }}</span>
+                                @if($student->user && $student->user->status === 'dropped')
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <x-icon name="user-times" style="fas" class="w-3 h-3 mr-1" />
+                                        Dropped
+                                    </span>
+                                @endif
+                            </div>
+                        </dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Email Address</dt>
@@ -72,7 +82,7 @@
                         <dd class="text-sm text-gray-900">
                             @if($student->academicYear)
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                                    {{ $student->academicYear->description }}
+                                    {{ $student->academicYear->formatted_description }}
                                 </span>
                             @else
                                 <span class="text-gray-400 italic">Not specified</span>
@@ -112,6 +122,16 @@
                     @endif
                 </h3>
                 
+                @if($student->user && $student->user->status === 'dropped')
+                    <div class="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
+                        <div class="flex items-center">
+                            <x-icon name="exclamation-triangle" style="fas" class="w-4 h-4 text-red-600 mr-2" />
+                            <span class="text-sm text-red-800 font-medium">Note:</span>
+                            <span class="text-sm text-red-700 ml-1">This student has been marked as dropped. Only non-dropped assessment results are shown below.</span>
+                        </div>
+                    </div>
+                @endif
+                
                 @if($student->results && $student->results->isNotEmpty())
                     <div class="space-y-4">
                         @foreach($student->results as $result)
@@ -122,17 +142,19 @@
                                             <div class="flex-1">
                                                 <h4 class="text-sm font-medium text-gray-900">
                                                     {{ $result->assessmentSchedule?->assessment?->qualificationType?->name ?? 'Unknown Qualification' }}
-                                                </h4>
-                                                @if($result->assessmentSchedule?->assessment?->qualificationType?->level)
-                                                    <p class="text-xs text-blue-600">
-                                                        Level {{ $result->assessmentSchedule->assessment->qualificationType->level }}
-                                                    </p>
+                                                    @if($result->assessmentSchedule?->assessment?->qualificationType?->level)
+                                                    
+                                                        {{ $result->assessmentSchedule->assessment->qualificationType->level }}
+                                                    
                                                 @endif
+                                                </h4>
+                                                
                                             </div>
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
                                                 {{ $result->competencyType?->name === 'Competent' ? 'bg-green-100 text-green-800' : 
                                                    ($result->competencyType?->name === 'Not Yet Competent' ? 'bg-red-100 text-red-800' : 
-                                                   ($result->competencyType?->name === 'Absent' ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800')) }}">
+                                                   ($result->competencyType?->name === 'Absent' ? 'bg-orange-100 text-orange-800' : 
+                                                   ($result->competencyType?->name === 'Dropped' ? 'bg-gray-100 text-gray-800' : 'bg-gray-100 text-gray-800'))) }}">
                                                 {{ $result->competencyType?->name ?? 'Pending' }}
                                             </span>
                                         </div>
@@ -211,7 +233,6 @@
                             </div>
                             <div class="text-sm text-gray-600">Absent</div>
                         </div>
-                    </div>
                     </div>
                 </div>
             @endif

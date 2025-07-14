@@ -24,7 +24,7 @@
                     placeholder="{{ $courseFilter ? 'All Qualification Types' : 'Select Course First' }}"
                     icon="award"
                     :options="$qualificationTypes"
-                    nameField="name"
+                    textField="description"
                     :disabled="!$courseFilter" />
             </div>
 
@@ -61,7 +61,7 @@
                     @if($qualificationFilter)
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                             <x-icon name="award" style="fas" class="w-3 h-3 mr-1" />
-                            Qualification: {{ $qualificationTypes->firstWhere('id', $qualificationFilter)?->name }}
+                            Qualification: {{ $qualificationTypes->firstWhere('id', $qualificationFilter)?->description }}
                             <button wire:click="$set('qualificationFilter', '')" class="ml-2 text-purple-600 hover:text-purple-800">
                                 <x-icon name="times" style="fas" class="w-3 h-3" />
                             </button>
@@ -71,7 +71,7 @@
                     @if($academicYearFilter)
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             <x-icon name="calendar" style="fas" class="w-3 h-3 mr-1" />
-                            Academic Year: {{ $academicYears->firstWhere('id', $academicYearFilter)?->description }}
+                            Academic Year: {{ $academicYears->firstWhere('id', $academicYearFilter)?->formatted_description }}
                             <button wire:click="$set('academicYearFilter', '')" class="ml-2 text-green-600 hover:text-green-800">
                                 <x-icon name="times" style="fas" class="w-3 h-3" />
                             </button>

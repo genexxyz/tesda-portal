@@ -29,18 +29,18 @@
             "active_routes": ["admin.courses"]
         },
         {
-            "label": "Programs Heads",
-            "route": "admin.program-heads",
-            "icon": "user-tie",
-            "icon_style": "fas",
-            "active_routes": ["admin.program-heads"]
-        },
-        {
             "label": "Qualifications",
             "route": "admin.qualification-types",
             "icon": "award",
             "icon_style": "fas",
             "active_routes": ["admin.qualification-types"]
+        },
+        {
+            "label": "Assessment Management",
+            "route": "admin.assessment-management",
+            "icon": "clipboard-list",
+            "icon_style": "fas",
+            "active_routes": ["admin.assessment-management"]
         },
         {
             "label": "Registrars",
@@ -50,11 +50,19 @@
             "active_routes": ["admin.registrars"]
         },
         {
-            "label": "Assessment Management",
-            "route": "admin.assessment-management",
-            "icon": "clipboard-list",
+            "label": "Programs Heads",
+            "route": "admin.program-heads",
+            "icon": "user-tie",
             "icon_style": "fas",
-            "active_routes": ["admin.assessment-management"]
+            "active_routes": ["admin.program-heads"]
+        },
+        {
+            "label": "Students",
+            "route": "admin.students",
+            "icon": "users",
+            "icon_style": "fas",
+            "active_routes": ["admin.students"]
         }
+        
     ]
 }

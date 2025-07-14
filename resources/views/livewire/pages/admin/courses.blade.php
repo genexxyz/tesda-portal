@@ -143,11 +143,6 @@
                                         <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
                                         Edit
                                     </button>
-                                    <button wire:click="$dispatch('openModal', { component: 'modals.admin.view-course-students', arguments: { courseId: {{ $course->id }} } })"
-                                            class="text-green-600 hover:text-green-900 text-sm font-medium">
-                                        <x-icon name="users" style="fas" class="w-4 h-4 mr-1" />
-                                        Students
-                                    </button>
                                     <button wire:click="confirmDelete({{ $course->id }})"
                                             class="text-red-600 hover:text-red-900 text-sm font-medium">
                                         <x-icon name="trash" style="fas" class="w-4 h-4 mr-1" />

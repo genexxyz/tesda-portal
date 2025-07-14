@@ -13,7 +13,18 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        if (!Auth::user()->role || !in_array(Auth::user()->role->name, $roles)) {
+        $user = Auth::user();
+
+        // Check if user status is active
+        if ($user->status !== 'active') {
+            Auth::logout();
+            return redirect()->route('login')->withErrors([
+                'email' => 'Your account is not active. Please contact the administrator.'
+            ]);
+        }
+
+        // Check role permissions
+        if (!$user->role || !in_array($user->role->name, $roles)) {
             abort(403, 'Unauthorized.');
         }
 

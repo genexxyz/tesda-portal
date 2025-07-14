@@ -11,7 +11,7 @@
                     id="code"
                     wire:model="code"
                     label="Campus Code"
-                    placeholder="e.g., MA, BG"
+                    placeholder="e.g., MA"
                     required />
 
                 <!-- Campus Name Field -->
@@ -19,7 +19,7 @@
                     id="name"
                     wire:model="name"
                     label="Campus Name"
-                    placeholder="e.g., MALOLOS, BULACAN"
+                    placeholder="e.g., MALOLOS"
                     required />
 
                 <!-- Campus Number Field -->
@@ -54,20 +54,7 @@
                     </p>
                 </div>
 
-                <!-- Preview -->
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">Preview:</h4>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 rounded-full border border-gray-300" 
-                             style="background-color: {{ $color }}"></div>
-                        <span class="font-medium">{{ $code ?: 'CODE' }}</span>
-                        <span>-</span>
-                        <span>{{ $name ?: 'Campus Name' }}</span>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            #{{ $number ?: '0' }}
-                        </span>
-                    </div>
-                </div>
+                
             </div>
         </x-modals.modal-body>
 

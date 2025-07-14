@@ -24,9 +24,9 @@ class Academic extends Model
     }
 
     /**
-     * Get the description attribute for the academic year.
+     * Get the formatted description for the academic year.
      */
-    public function getDescriptionAttribute()
+    public function getFormattedDescriptionAttribute()
     {
         return $this->start_year . '-' . $this->end_year . ' ' . ucfirst($this->semester);
     }

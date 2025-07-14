@@ -143,8 +143,16 @@ class SubmitResults extends Component
 
     private function updateAssessmentStatus()
     {
-        $totalStudents = $this->assessment->results->count();
-        $completedResults = collect($this->studentResults)->filter(function ($result) {
+        // Get the "Dropped" competency type ID
+        $droppedTypeId = CompetencyType::where('name', 'Dropped')->first()?->id;
+        
+        // Count only non-dropped students
+        $nonDroppedResults = collect($this->studentResults)->filter(function ($result) use ($droppedTypeId) {
+            return $result['competency_type_id'] != $droppedTypeId;
+        });
+        
+        $totalStudents = $nonDroppedResults->count();
+        $completedResults = $nonDroppedResults->filter(function ($result) {
             return !is_null($result['competency_type_id']);
         })->count();
 
@@ -163,8 +171,16 @@ class SubmitResults extends Component
 
     public function getCompletionStatsProperty()
     {
-        $total = count($this->studentResults);
-        $completed = collect($this->studentResults)->filter(function ($result) {
+        // Get the "Dropped" competency type ID
+        $droppedTypeId = CompetencyType::where('name', 'Dropped')->first()?->id;
+        
+        // Filter out dropped students from statistics
+        $nonDroppedResults = collect($this->studentResults)->filter(function ($result) use ($droppedTypeId) {
+            return $result['competency_type_id'] != $droppedTypeId;
+        });
+        
+        $total = $nonDroppedResults->count();
+        $completed = $nonDroppedResults->filter(function ($result) {
             return !is_null($result['competency_type_id']);
         })->count();
         
@@ -173,16 +189,15 @@ class SubmitResults extends Component
         $notCompetentTypeId = $this->competencyTypes->where('name', 'Not Yet Competent')->first()?->id;
         $absentTypeId = $this->competencyTypes->where('name', 'Absent')->first()?->id;
         
-        
-        $competent = collect($this->studentResults)->filter(function ($result) use ($competentTypeId) {
+        $competent = $nonDroppedResults->filter(function ($result) use ($competentTypeId) {
             return $result['competency_type_id'] == $competentTypeId;
         })->count();
         
-        $notYetCompetent = collect($this->studentResults)->filter(function ($result) use ($notCompetentTypeId) {
+        $notYetCompetent = $nonDroppedResults->filter(function ($result) use ($notCompetentTypeId) {
             return $result['competency_type_id'] == $notCompetentTypeId;
         })->count();
         
-        $absent = collect($this->studentResults)->filter(function ($result) use ($absentTypeId) {
+        $absent = $nonDroppedResults->filter(function ($result) use ($absentTypeId) {
             return $result['competency_type_id'] == $absentTypeId;
         })->count();
 
@@ -195,6 +210,13 @@ class SubmitResults extends Component
             'absent' => $absent,
             'completion_percentage' => $total > 0 ? round(($completed / $total) * 100, 1) : 0
         ];
+    }
+
+    public function isStudentDropped($resultId)
+    {
+        $droppedTypeId = CompetencyType::where('name', 'Dropped')->first()?->id;
+        return isset($this->studentResults[$resultId]) && 
+               $this->studentResults[$resultId]['competency_type_id'] == $droppedTypeId;
     }
 
     public function render()

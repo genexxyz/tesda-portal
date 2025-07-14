@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Livewire\Modals\Registrar;
+namespace App\Livewire\Modals\Admin;
 
 use App\Models\Student;
 use App\Models\Course;
 use App\Models\Academic;
 use App\Models\User;
+use App\Models\Campus;
 use App\Models\Result;
 use App\Models\CompetencyType;
 use LivewireUI\Modal\ModalComponent;
 use Livewire\Attributes\Rule;
 use Livewire\Attributes\On;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class EditStudent extends ModalComponent
@@ -32,6 +32,9 @@ class EditStudent extends ModalComponent
     #[Rule('required|exists:academics,id')]
     public $academic_year_id = '';
 
+    #[Rule('required|exists:campuses,id')]
+    public $campus_id = '';
+
     // User fields
     #[Rule('required|string|max:255')]
     public $first_name = '';
@@ -48,7 +51,7 @@ class EditStudent extends ModalComponent
     public function mount($studentId)
     {
         $this->studentId = $studentId;
-        $this->student = Student::with(['user', 'course', 'academicYear'])->findOrFail($studentId);
+        $this->student = Student::with(['user.campus', 'course', 'academicYear'])->findOrFail($studentId);
         
         // Load student data
         $this->student_id = $this->student->student_id;
@@ -62,6 +65,7 @@ class EditStudent extends ModalComponent
             $this->middle_name = $this->student->user->middle_name;
             $this->last_name = $this->student->user->last_name;
             $this->email = $this->student->user->email;
+            $this->campus_id = $this->student->user->campus_id;
         }
     }
 
@@ -91,6 +95,7 @@ class EditStudent extends ModalComponent
             'uli' => $uliRule,
             'course_id' => 'required|exists:courses,id',
             'academic_year_id' => 'required|exists:academics,id',
+            'campus_id' => 'required|exists:campuses,id',
         ];
     }
 
@@ -111,6 +116,7 @@ class EditStudent extends ModalComponent
                     'middle_name' => $this->middle_name ? ucfirst(strtolower($this->middle_name)) : null,
                     'last_name' => ucfirst(strtolower($this->last_name)),
                     'email' => strtolower($this->email),
+                    'campus_id' => $this->campus_id,
                 ]);
             } else {
                 // Create user if doesn't exist
@@ -122,6 +128,7 @@ class EditStudent extends ModalComponent
                     'password' => bcrypt('defaultpassword'), // Should be changed
                     'role_id' => 1, // Student role
                     'status' => 'active',
+                    'campus_id' => $this->campus_id,
                 ]);
                 
                 $this->student->update(['user_id' => $user->id]);
@@ -153,7 +160,6 @@ class EditStudent extends ModalComponent
 
     public function markAsDropped()
     {
-        
         try {
             DB::transaction(function () {
                 // Mark the user as dropped
@@ -164,12 +170,12 @@ class EditStudent extends ModalComponent
                 // Get the "Dropped" competency type
                 $droppedCompetencyType = CompetencyType::where('name', 'Dropped')->first();
 
-            if ($droppedCompetencyType) {
-                // Update all results with null competency_type_id for this student to "Dropped"
-                Result::where('student_id', $this->student->id)
-                      ->whereNull('competency_type_id')
-                      ->update(['competency_type_id' => $droppedCompetencyType->id, 'remarks' => 'Dropped']);
-            }
+                if ($droppedCompetencyType) {
+                    // Update all results with null competency_type_id for this student to "Dropped"
+                    Result::where('student_id', $this->student->id)
+                          ->whereNull('competency_type_id')
+                          ->update(['competency_type_id' => $droppedCompetencyType->id, 'remarks' => 'Dropped']);
+                }
             });
 
             $this->dispatch('swal:alert', 
@@ -181,23 +187,19 @@ class EditStudent extends ModalComponent
             $this->closeModal();
 
         } catch (\Exception $e) {
-            $e->getMessage();
+            $this->dispatch('swal:error', [
+                'title' => 'Error!',
+                'text' => 'Failed to mark student as dropped. Please try again.',
+            ]);
         }
     }
 
-
     public function render()
     {
-        $registrarCampusId = Auth::user()->campus_id;
-        
-        // Get courses for the registrar's campus only
-        $campusCourses = Course::whereHas('campuses', function($query) use ($registrarCampusId) {
-            $query->where('campuses.id', $registrarCampusId);
-        })->orderBy('code', 'asc')->get();
-
-        return view('livewire.modals.registrar.edit-student', [
-            'courses' => $campusCourses,
-            'academicYears' => Academic::orderBy('start_year', 'desc')->get()
+        return view('livewire.modals.admin.edit-student', [
+            'courses' => Course::orderBy('code', 'asc')->get(),
+            'academicYears' => Academic::orderBy('start_year', 'desc')->get(),
+            'campuses' => Campus::orderBy('name', 'asc')->get()
         ]);
     }
 

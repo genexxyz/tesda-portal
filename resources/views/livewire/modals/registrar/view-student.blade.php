@@ -104,7 +104,7 @@
                         <dd class="text-sm text-gray-900">
                             @if($student->academicYear)
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                                    {{ $student->academicYear->description }}
+                                    {{ $student->academicYear->formatted_description }}
                                 </span>
                             @else
                                 <span class="text-gray-400 italic">Not specified</span>

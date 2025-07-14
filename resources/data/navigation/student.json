@@ -1,0 +1,11 @@
+{
+    "navigation": [
+        {
+            "label": "Home",
+            "route": "student.dashboard",
+            "icon": "house",
+            "icon_style": "fas",
+            "active_routes": ["student.dashboard"]
+        }
+    ]
+}

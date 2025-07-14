@@ -121,18 +121,18 @@
                 class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 py-1 z-50"
                 style="display: none;" role="menu" aria-orientation="vertical">
 
-                <a href="#" wire:navigate
+                <a href="{{route('profile')}}" wire:navigate
                     class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 smooth-transition rounded-md mx-1"
                     role="menuitem" @click="closeDropdown()">
                     <x-icon name="user" style="far" class="mr-2 w-4 h-4" />
                     Profile
                 </a>
 
-                <a href="#" wire:navigate
+                <a href="{{route('change-password')}}" wire:navigate
                     class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 smooth-transition rounded-md mx-1"
                     role="menuitem" @click="closeDropdown()">
-                    <x-icon name="gear" styles="fas" class="mr-2 w-4 h-4" />
-                    Settings
+                    <x-icon name="lock" styles="fas" class="mr-2 w-4 h-4" />
+                    Change Password
                 </a>
 
                 <hr class="my-1 border-gray-200">

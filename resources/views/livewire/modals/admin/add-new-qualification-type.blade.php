@@ -23,7 +23,7 @@
                         id="name"
                         wire:model="name"
                         label="Qualification Name"
-                        placeholder="e.g., Food and Beverage Services NC II"
+                        placeholder="e.g., Food and Beverage Services"
                         required />
                     <x-error for="name" />
                 </div>

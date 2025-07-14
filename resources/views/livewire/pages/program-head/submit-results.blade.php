@@ -50,7 +50,7 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Academic Year</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $assessment->academicYear?->description }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $assessment->academicYear?->formatted_description }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Total Students</dt>
@@ -271,13 +271,15 @@
                     <td class="w-24 px-6 py-4 whitespace-nowrap text-center">
                         @php
                             $competentType = $competencyTypes->where('name', 'Competent')->first();
+                            $isDropped = $this->isStudentDropped($result->id);
                         @endphp
                         @if($competentType)
                             <input type="radio"
                                    name="result_{{ $result->id }}"
                                    wire:click="updateCompetencyType({{ $result->id }}, {{ $competentType->id }})"
                                    {{ $studentResults[$result->id]['competency_type_id'] == $competentType->id ? 'checked' : '' }}
-                                   class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
+                                   {{ $isDropped ? 'disabled' : '' }}
+                                   class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 {{ $isDropped ? 'opacity-50 cursor-not-allowed' : '' }}">
                         @endif
                     </td>
                     
@@ -291,7 +293,8 @@
                                    name="result_{{ $result->id }}"
                                    wire:click="updateCompetencyType({{ $result->id }}, {{ $notCompetentType->id }})"
                                    {{ $studentResults[$result->id]['competency_type_id'] == $notCompetentType->id ? 'checked' : '' }}
-                                   class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
+                                   {{ $isDropped ? 'disabled' : '' }}
+                                   class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 {{ $isDropped ? 'opacity-50 cursor-not-allowed' : '' }}">
                         @endif
                     </td>
                     
@@ -305,7 +308,8 @@
                                    name="result_{{ $result->id }}"
                                    wire:click="updateCompetencyType({{ $result->id }}, {{ $absentType->id }})"
                                    {{ $studentResults[$result->id]['competency_type_id'] == $absentType->id ? 'checked' : '' }}
-                                   class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300">
+                                   {{ $isDropped ? 'disabled' : '' }}
+                                   class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 {{ $isDropped ? 'opacity-50 cursor-not-allowed' : '' }}">
                         @endif
                     </td>
                     
@@ -313,8 +317,9 @@
                     <td class="flex-1 px-6 py-4">
                         <input type="text"
                                wire:model="studentResults.{{ $result->id }}.remarks"
-                               placeholder="Add remarks..."
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
+                               placeholder="{{ $isDropped ? $result->remarks : 'Add remarks...' }}"
+                               {{ $isDropped ? 'disabled readonly' : '' }}
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm {{ $isDropped ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : '' }}">
                     </td>
                 </tr>
             @endforeach

@@ -4,7 +4,7 @@
     <x-buttons.floating-add-button 
         wire-click="$dispatch('openModal', { component: 'modals.admin.add-new-qualification-type' })"
         tooltip="Add new qualification" 
-        icon="certificate"
+        icon="award"
     />
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -159,11 +159,7 @@
                                         <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
                                         Edit
                                     </button>
-                                    <button wire:click="$dispatch('openModal', { component: 'modals.admin.manage-qualification-courses', arguments: { qualificationTypeId: {{ $qualificationType->id }} } })"
-                                            class="text-green-600 hover:text-green-900 text-sm font-medium">
-                                        <x-icon name="graduation-cap" style="fas" class="w-4 h-4 mr-1" />
-                                        Courses
-                                    </button>
+                                    
                                     <button wire:click="confirmDelete({{ $qualificationType->id }})"
                                             class="text-red-600 hover:text-red-900 text-sm font-medium">
                                         <x-icon name="trash" style="fas" class="w-4 h-4 mr-1" />

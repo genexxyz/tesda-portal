@@ -142,6 +142,7 @@ class ViewResults extends Component
             $notYetCompetentCount = 0;
             $absentCount = 0;
             $totalAssessed = 0; // Only Competent + Not Yet Competent
+            $totalStudents = 0; // Total non-dropped students
 
             foreach ($assessmentResults as $result) {
                 if ($result->competency_type_id) {
@@ -149,13 +150,16 @@ class ViewResults extends Component
                         case 'Competent':
                             $competentCount++;
                             $totalAssessed++; // Count as assessed
+                            $totalStudents++; // Count as student
                             break;
                         case 'Not Yet Competent':
                             $notYetCompetentCount++;
                             $totalAssessed++; // Count as assessed
+                            $totalStudents++; // Count as student
                             break;
                         case 'Absent':
                             $absentCount++;
+                            $totalStudents++; // Count as student
                             // Don't count as assessed
                             break;
                         case 'Dropped':
@@ -164,6 +168,7 @@ class ViewResults extends Component
                     }
                 } else {
                     $absentCount++; // No assessment yet - treat as absent
+                    $totalStudents++; // Count as student
                 }
             }
 
@@ -174,7 +179,7 @@ class ViewResults extends Component
                 $resultsData[$key][$examTypeKey]['competent'] += $competentCount;
                 $resultsData[$key][$examTypeKey]['not_yet_competent'] += $notYetCompetentCount;
                 $resultsData[$key][$examTypeKey]['absent'] += $absentCount;
-                $resultsData[$key][$examTypeKey]['total_students'] += $assessmentResults->count();
+                $resultsData[$key][$examTypeKey]['total_students'] += $totalStudents;
             }
         }
 

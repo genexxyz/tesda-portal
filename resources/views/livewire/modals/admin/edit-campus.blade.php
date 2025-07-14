@@ -11,7 +11,7 @@
                     id="code"
                     wire:model="code"
                     label="Campus Code"
-                    placeholder="e.g., MA, BG"
+                    placeholder="e.g., MA"
                     required />
 
                 <!-- Campus Name Field -->
@@ -19,7 +19,7 @@
                     id="name"
                     wire:model="name"
                     label="Campus Name"
-                    placeholder="e.g., MALOLOS, BULACAN"
+                    placeholder="e.g., MALOLOS,"
                     required />
 
                 <!-- Campus Number Field -->

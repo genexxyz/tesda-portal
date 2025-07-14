@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Modals\TesdaFocal;
+namespace App\Livewire\Modals\Admin;
 
 use App\Models\Student;
 use LivewireUI\Modal\ModalComponent;
@@ -12,26 +12,20 @@ class ViewStudentDetails extends ModalComponent
     public function mount($studentId)
     {
         $this->student = Student::with([
-            'user', 
-            'course.campuses', 
+            'user.campus', 
+            'course', 
             'academicYear',
-            'results' => function($query) {
-                $query->whereHas('competencyType', function($q) {
-                    $q->where('name', '!=', 'Dropped');
-                })->orWhereNull('competency_type_id');
-            },
             'results.assessmentSchedule.assessment.qualificationType',
             'results.assessmentSchedule.assessment.examType',
-            'results.assessmentSchedule.assessment.course',
+            'results.assessmentSchedule.assessment.assessmentCenter',
             'results.assessmentSchedule.assessor',
-            'results.assessmentSchedule.assessmentCenter',
             'results.competencyType'
         ])->findOrFail($studentId);
     }
 
     public function render()
     {
-        return view('livewire.modals.tesda-focal.view-student-details');
+        return view('livewire.modals.admin.view-student-details');
     }
 
     public static function modalMaxWidth(): string

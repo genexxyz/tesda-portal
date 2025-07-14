@@ -3,7 +3,7 @@
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <!-- Header Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center">
@@ -40,37 +40,23 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <x-icon name="building" style="fas" class="h-8 w-8 text-purple-600" />
+                            <x-icon name="user-times" style="fas" class="h-8 w-8 text-red-600" />
                         </div>
                         <div class="ml-5 w-0 flex-1">
                             <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Campuses</dt>
-                                <dd class="text-lg font-medium text-gray-900">{{ $campuses->count() }}</dd>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Dropped</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $droppedCount }}</dd>
                             </dl>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <x-icon name="calendar" style="fas" class="h-8 w-8 text-orange-600" />
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Academic Years</dt>
-                                <dd class="text-lg font-medium text-gray-900">{{ $academicYears->count() }}</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
 
         <!-- Search and Filter Bar -->
-        <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Search Input -->
             <div class="md:col-span-1">
                 <x-inputs.search-input 
@@ -89,30 +75,24 @@
                     :options="$courses" />
             </div>
 
-            <!-- Campus Filter -->
+            <!-- Status Filter -->
             <div>
                 <x-inputs.filter-select 
-                    id="campusFilter"
-                    wire:model.live="campusFilter"
-                    placeholder="All Campuses"
-                    icon="building"
-                    :options="$campuses" />
+                    id="statusFilter"
+                    wire:model.live="statusFilter"
+                    placeholder="All Status"
+                    icon="user-check"
+                    :options="[
+                        ['id' => 'active', 'name' => 'Active'],
+                        ['id' => 'dropped', 'name' => 'Dropped']
+                    ]" />
             </div>
 
-            <!-- Academic Year Filter -->
-            <div>
-                <x-inputs.filter-select 
-                    id="academicYearFilter"
-                    wire:model.live="academicYearFilter"
-                    placeholder="All Academic Years"
-                    icon="calendar"
-                    :options="$academicYears"
-                    textField="description" />
-            </div>
+            
         </div>
 
         <!-- Active Filters Display -->
-        @if($search || $courseFilter || $campusFilter || $academicYearFilter)
+        @if($search || $courseFilter || $statusFilter)
             <div class="mb-4">
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="text-sm font-medium text-gray-700">Active filters:</span>
@@ -137,25 +117,17 @@
                         </span>
                     @endif
 
-                    @if($campusFilter)
+                    @if($statusFilter)
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                            <x-icon name="building" style="fas" class="w-3 h-3 mr-1" />
-                            Campus: {{ $campuses->firstWhere('id', $campusFilter)?->name }}
-                            <button wire:click="$set('campusFilter', '')" class="ml-2 text-purple-600 hover:text-purple-800">
+                            <x-icon name="user-check" style="fas" class="w-3 h-3 mr-1" />
+                            Status: {{ ucfirst($statusFilter) }}
+                            <button wire:click="$set('statusFilter', '')" class="ml-2 text-purple-600 hover:text-purple-800">
                                 <x-icon name="times" style="fas" class="w-3 h-3" />
                             </button>
                         </span>
                     @endif
 
-                    @if($academicYearFilter)
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                            <x-icon name="calendar" style="fas" class="w-3 h-3 mr-1" />
-                            AY: {{ $academicYears->firstWhere('id', $academicYearFilter)?->description }}
-                            <button wire:click="$set('academicYearFilter', '')" class="ml-2 text-orange-600 hover:text-orange-800">
-                                <x-icon name="times" style="fas" class="w-3 h-3" />
-                            </button>
-                        </span>
-                    @endif
+                    
 
                     <!-- Clear All Filters -->
                     <button wire:click="clearFilters"
@@ -170,7 +142,7 @@
         <!-- Table with Loading State -->
         <div class="relative">
             <!-- Loading Overlay -->
-            <div wire:loading.delay wire:target="search,courseFilter,campusFilter,academicYearFilter" 
+            <div wire:loading.delay wire:target="search,courseFilter,statusFilter,academicYearFilter" 
                  class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-lg">
                 <div class="flex items-center space-x-2">
                     <x-icon name="spinner" style="fas" class="w-5 h-5 text-primary animate-spin" />
@@ -201,10 +173,18 @@
                                 </div>
                             </x-tables.table-cell>
                             <x-tables.table-cell>
-                                <div class="text-sm text-gray-900">{{ $student->full_name }}</div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="text-sm text-gray-900">{{ $student->full_name }}</div>
+                                    @if($student->user && $student->user->status === 'dropped')
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <x-icon name="user-times" style="fas" class="w-3 h-3 mr-1" />
+                                            Dropped
+                                        </span>
+                                    @endif
+                                </div>
                                 <div class="text-sm text-gray-500">
-                                            {{ $student->user?->email }}
-                                        </div>
+                                    {{ $student->user?->email }}
+                                </div>
                             </x-tables.table-cell>
                             <x-tables.table-cell>
                                 <div class="flex items-center">
