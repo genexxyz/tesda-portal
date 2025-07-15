@@ -20,10 +20,10 @@ class EditStudent extends ModalComponent
     public $student;
 
     // Student fields
-    #[Rule('nullable|string|max:255')]
+    #[Rule('required|string|max:255')]
     public $student_id = '';
 
-    #[Rule('nullable|string|max:255')]
+    #[Rule('required|string|max:255')]
     public $uli = '';
 
     #[Rule('required|exists:courses,id')]

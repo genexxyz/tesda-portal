@@ -62,12 +62,14 @@ class Students extends Component
 
         // Apply search filter
         if ($this->search) {
-            $query->whereHas('user', function ($q) {
-                $q->where('first_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('last_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%');
-            })->orWhere('student_id', 'like', '%' . $this->search . '%')
-              ->orWhere('uli', 'like', '%' . $this->search . '%');
+            $query->where(function ($q) {
+                $q->whereHas('user', function ($userQuery) {
+                    $userQuery->where('first_name', 'like', '%' . $this->search . '%')
+                              ->orWhere('last_name', 'like', '%' . $this->search . '%')
+                              ->orWhere('email', 'like', '%' . $this->search . '%');
+                })->orWhere('student_id', 'like', '%' . $this->search . '%')
+                  ->orWhere('uli', 'like', '%' . $this->search . '%');
+            });
         }
 
         // Apply course filter

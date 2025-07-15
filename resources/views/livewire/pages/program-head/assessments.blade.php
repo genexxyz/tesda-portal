@@ -365,13 +365,11 @@
             <x-icon name="eye" style="fas" class="w-4 h-4 mr-1" />
             View
         </a>
-        @if($isToday || $isCompleted)
-            <a wire:navigate href="{{ route('program-head.submit-results', $assessment->id) }}"
-               class="text-purple-600 hover:text-purple-900 text-sm font-medium">
-                <x-icon name="clipboard-check" style="fas" />
-                Results
-            </a>
-        @endif
+        <a wire:navigate href="{{ route('program-head.submit-results', $assessment->id) }}"
+           class="text-purple-600 hover:text-purple-900 text-sm font-medium">
+            <x-icon name="clipboard-check" style="fas" class="w-4 h-4 mr-1" />
+            Results
+        </a>
         @if($assessment->schedules->count() === 0)
             <button wire:click="deleteAssessment({{ $assessment->id }})" 
                     wire:confirm="Are you sure you want to delete this assessment? This action cannot be undone."

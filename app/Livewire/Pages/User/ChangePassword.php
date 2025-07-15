@@ -43,7 +43,7 @@ class ChangePassword extends Component
     {
         $this->reset(['current_password', 'new_password', 'new_password_confirmation']);
         $this->resetErrorBag();
-        session()->flash('success', 'Form has been reset.');
+        
     }
 
     public function changePassword()
@@ -60,12 +60,8 @@ class ChangePassword extends Component
             // Clear the form
             $this->reset(['current_password', 'new_password', 'new_password_confirmation']);
 
-            // Show success message
-            session()->flash('success', 'Password changed successfully!');
+            $this->dispatch('swal:alert', type: 'success',  text: 'Your password has been changed successfully.');
 
-            // Optional: Log the user out to force re-authentication with new password
-            // Auth::logout();
-            // return redirect()->route('login')->with('message', 'Password changed successfully. Please log in with your new password.');
 
         } catch (\Exception $e) {
             session()->flash('error', 'An error occurred while changing your password. Please try again.');

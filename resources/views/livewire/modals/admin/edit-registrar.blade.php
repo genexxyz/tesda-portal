@@ -64,19 +64,6 @@
                     required />
             </div>
 
-            <div class="mt-4 p-4 bg-blue-50 rounded-lg">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <x-icon name="info-circle" style="fas" class="h-5 w-5 text-blue-400" />
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-blue-700">
-                            <strong>Note:</strong> The registrar's password will remain unchanged. 
-                            If password reset is needed, please contact the system administrator.
-                        </p>
-                    </div>
-                </div>
-            </div>
         </x-modals.modal-body>
 
         <x-modals.modal-footer>

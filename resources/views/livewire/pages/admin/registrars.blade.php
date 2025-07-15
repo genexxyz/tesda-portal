@@ -149,9 +149,11 @@
                                         Edit
                                     </button>
                                     <button wire:click="toggleStatus({{ $registrar->id }})"
-                                            class="text-green-600 hover:text-green-900 text-sm font-medium">
-                                        {{ $registrar->status === 'active' ? 'Deactivate' : 'Activate' }}
-                                    </button>
+                                                class="{{ $registrar->status === 'active' ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900' }} text-sm font-medium"
+                                                title="{{ $registrar->status === 'active' ? 'Deactivate' : 'Activate' }}">
+                                            <x-icon name="{{ $registrar->status === 'active' ? 'user-slash' : 'user-check' }}" style="fas" class="w-4 h-4 mr-1" />
+                                            {{ $registrar->status === 'active' ? 'Deactivate' : 'Activate' }}
+                                        </button>
                                     <button wire:click="confirmDelete({{ $registrar->id }})"
                                             class="text-red-600 hover:text-red-900 text-sm font-medium">
                                         <x-icon name="trash" style="fas" class="w-4 h-4 mr-1" />

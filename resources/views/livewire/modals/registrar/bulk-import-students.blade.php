@@ -9,67 +9,54 @@
                 <!-- Upload Form -->
                 <div class="space-y-6">
                     <!-- Academic Year Selection -->
-                    <div>
-                        <label for="academic_year_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            Academic Year <span class="text-red-500">*</span>
-                        </label>
-                        <select wire:model="academic_year_id" 
-                                id="academic_year_id"
-                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                required>
-                            <option value="">Select academic year</option>
-                            @foreach($academicYears as $academic)
-                                <option value="{{ $academic->id }}">
-                                    {{ $academic->start_year }} - {{ $academic->end_year }}
-                                    @if($academic->is_active)
-                                        (Active)
-                                    @endif
-                                </option>
-                            @endforeach
-                        </select>
-                        <x-error for="academic_year_id" />
-                    </div>
+                    <x-inputs.select-input
+                        wire:model="academic_year_id"
+                        id="academic_year_id"
+                        label="Academic Year"
+                        placeholder="Select Academic Year"
+                        :required="true"
+                        :options="$academicYears"
+                        value-field="id"
+                        text-field="formatted_description" />
 
                     <!-- File Upload -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Import File <span class="text-red-500">*</span>
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Import File
+                            <span class="text-red-500 ml-1">*</span>
                         </label>
                         <input type="file" 
                                wire:model="file"
                                accept=".xlsx,.xls,.csv"
-                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <x-error for="file" />
+                               class="block w-full text-sm text-gray-900 border-2 border-gray-400 rounded-md cursor-pointer bg-white focus:border-primary focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/80">
+                        <p class="mt-1 text-xs text-gray-500">Supported formats: .xlsx, .xls, .csv (Max: 10MB)</p>
+                        @error('file')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Template Download -->
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <x-icon name="info-circle" style="fas" class="w-5 h-5 text-blue-400" />
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-blue-800">Import Template</h3>
-                                <div class="mt-2 text-sm text-blue-700">
-                                    <p>Download the template to ensure proper formatting:</p>
-                                    <ol class="list-decimal list-inside mt-2 space-y-1">
-                                        <li><strong>student_id:</strong> Student ID (e.g., AB12345)</li>
-                                        <li><strong>uli:</strong> ULI number (optional but recommended)</li>
-                                        <li><strong>last_name:</strong> Student's last name</li>
-                                        <li><strong>first_name:</strong> Student's first name</li>
-                                        <li><strong>middle_name:</strong> Student's middle name (optional)</li>
-                                        <li><strong>course_code:</strong> Course code from your campus</li>
-                                    </ol>
-                                    
-                                </div>
-                                <div class="mt-3">
-                                    <button type="button" 
-                                            wire:click="downloadTemplate"
-                                            class="text-blue-600 hover:text-blue-500 font-medium text-sm">
-                                        <x-icon name="download" style="fas" class="w-4 h-4 mr-1" />
-                                        Download Template
-                                    </button>
-                                </div>
+                        <div class="flex items-start">
+                            <x-icon name="info-circle" style="fas" class="h-5 w-5 text-blue-600 mr-2 mt-0.5" />
+                            <div class="text-sm text-blue-800">
+                                <h4 class="font-semibold mb-2">Import Template</h4>
+                                <p class="text-blue-700 text-xs mb-3">Download the template to ensure proper formatting:</p>
+                                <ul class="space-y-1 text-blue-700 text-xs mb-3">
+                                    <li>• <strong>Email:</strong> Must be unique and valid (Required)</li>
+                                    <li>• <strong>First Name:</strong> Student's first name (Required)</li>
+                                    <li>• <strong>Last Name:</strong> Student's last name (Required)</li>
+                                    <li>• <strong>Middle Name:</strong> Student's middle name (Optional)</li>
+                                    <li>• <strong>Student ID:</strong> Will be auto-generated if empty (Optional)</li>
+                                    <li>• <strong>ULI:</strong> Unique Learner Identifier (Optional)</li>
+                                    <li>• <strong>Status:</strong> active, inactive, or dropped (Required)</li>
+                                </ul>
+                                <x-buttons.secondary-button
+                                    wire:click="downloadTemplate"
+                                    class="text-xs">
+                                    <x-icon name="download" style="fas" class="w-3 h-3 mr-1" />
+                                    Download Template
+                                </x-buttons.secondary-button>
                             </div>
                         </div>
                     </div>
@@ -176,48 +163,49 @@
 
     <x-modals.modal-footer>
         @if(!$isImporting && !$importCompleted)
-            <x-buttons.secondary-button 
-                wire:click="closeModal"
-                :disabled="$isImporting">
-                Cancel
-            </x-buttons.secondary-button>
-            
-            <x-buttons.primary-button
-                wire:click="startImport"
-                :disabled="$isImporting"
-                wire:loading.attr="disabled">
-                <span wire:loading.remove wire:target="startImport">Start Import</span>
-                <span wire:loading wire:target="startImport" class="flex items-center">
-                    <x-icon name="spinner" style="fas" class="w-4 h-4 mr-2 animate-spin" />
-                    Starting Import...
-                </span>
-            </x-buttons.primary-button>
+            <div class="flex items-center justify-end space-x-3">
+                <x-buttons.secondary-button wire:click="closeModal">
+                    Cancel
+                </x-buttons.secondary-button>
+                
+                <x-buttons.primary-button
+                    wire:click="startImport"
+                    wire:loading.attr="disabled"
+                    :disabled="!$file || !$academic_year_id">
+                    <span wire:loading.remove wire:target="startImport">
+                        <x-icon name="upload" style="fas" class="w-4 h-4 mr-2" />
+                        Start Import
+                    </span>
+                    <span wire:loading wire:target="startImport" class="flex items-center">
+                        <x-icon name="spinner" style="fas" class="w-4 h-4 mr-2 animate-spin" />
+                        Starting Import...
+                    </span>
+                </x-buttons.primary-button>
+            </div>
         @elseif($isImporting)
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center justify-between">
                 <div class="flex items-center text-sm text-gray-600">
-                    <x-icon name="spinner" style="fas" class="w-4 h-4 mr-2 animate-spin text-blue-500" />
+                    <x-icon name="spinner" style="fas" class="w-4 h-4 mr-2 animate-spin text-primary" />
                     Import in progress... Please wait.
                 </div>
-                <x-buttons.secondary-button 
-                    disabled
-                    class="opacity-50 cursor-not-allowed">
+                <x-buttons.secondary-button disabled>
                     Please Wait...
                 </x-buttons.secondary-button>
             </div>
         @else
-            @if($importCompleted)
-                <x-buttons.secondary-button 
-                    wire:click="resetImport"
-                    :disabled="$isImporting">
-                    Import Another File
-                </x-buttons.secondary-button>
-            @endif
-            
-            <x-buttons.primary-button 
-                wire:click="closeModal"
-                :disabled="$isImporting">
-                Close
-            </x-buttons.primary-button>
+            <div class="flex items-center justify-end space-x-3">
+                @if($importCompleted)
+                    <x-buttons.secondary-button wire:click="resetImport">
+                        <x-icon name="refresh" style="fas" class="w-4 h-4 mr-2" />
+                        Import Another File
+                    </x-buttons.secondary-button>
+                @endif
+                
+                <x-buttons.primary-button wire:click="closeModal">
+                    <x-icon name="check" style="fas" class="w-4 h-4 mr-2" />
+                    Close
+                </x-buttons.primary-button>
+            </div>
         @endif
     </x-modals.modal-footer>
 </div>

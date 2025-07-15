@@ -52,9 +52,9 @@
             <!-- Quick Actions -->
             <x-buttons.import-export-buttons 
     import-modal="modals.registrar.bulk-import-students"
-    export-method="exportStudents"
+    export-modal="modals.registrar.export-students"
     import-tooltip="Import student data"
-    export-tooltip="Export student list" />
+    export-tooltip="Export students to Excel" />
         </div>
 
         <!-- Active Filters Display -->
@@ -200,11 +200,6 @@
                                             class="text-blue-600 hover:text-blue-900 text-sm font-medium">
                                         <x-icon name="edit" style="fas" class="w-4 h-4 mr-1" />
                                         Edit
-                                    </button>
-                                    <button wire:click="confirmDelete({{ $student->id }})"
-                                            class="text-red-600 hover:text-red-900 text-sm font-medium">
-                                        <x-icon name="trash" style="fas" class="w-4 h-4 mr-1" />
-                                        Delete
                                     </button>
                                 </div>
                             </x-tables.table-cell>

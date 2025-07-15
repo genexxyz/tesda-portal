@@ -51,26 +51,6 @@
                         Select one or more assessment centers where this assessor will be assigned.
                     </p>
                 </div>
-
-                <!-- Info Box -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <x-icon name="info-circle" style="fas" class="w-5 h-5 text-blue-400" />
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-sm font-medium text-blue-800">Assignment Information</h3>
-                            <div class="mt-2 text-sm text-blue-700">
-                                <p>Updating assessor assignments will:</p>
-                                <ul class="list-disc list-inside mt-1 space-y-1">
-                                    <li>Sync the assessor with selected assessment centers</li>
-                                    <li>Remove assignments from unselected centers</li>
-                                    <li>Update existing assessment records accordingly</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </x-modals.modal-body>
 

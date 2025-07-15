@@ -1,11 +1,24 @@
 <div>
     <x-modals.modal-header 
-        title="Edit Student"
-        subtitle="Update student information and details." />
+        title="Add New Student"
+        subtitle="Create a new student record for {{ $userCampus->name ?? 'your campus' }}." />
 
     <form wire:submit="save">
         <x-modals.modal-body>
             <div class="space-y-6">
+                <!-- Campus Information -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <x-icon name="university" style="fas" class="w-5 h-5 text-blue-600 mr-2" />
+                        <div>
+                            <h4 class="text-sm font-medium text-blue-900">Campus Assignment</h4>
+                            <p class="text-sm text-blue-700">
+                                Student will be assigned to: <strong>{{ $userCampus->name ?? 'Default Campus' }}</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Personal Information Section -->
                 <div>
                     <h4 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h4>
@@ -44,6 +57,21 @@
                     </div>
                 </div>
 
+                <!-- Account Settings Section -->
+                <div class="border-t border-gray-200 pt-6">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Account Settings</h4>
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- Password -->
+                        <x-inputs.text-input 
+                            id="password"
+                            wire:model="password"
+                            label="Password"
+                            type="password"
+                            placeholder="Leave blank for default password"
+                            help="If left blank, a default password will be assigned" />
+                    </div>
+                </div>
+
                 <!-- Academic Information Section -->
                 <div class="border-t border-gray-200 pt-6">
                     <h4 class="text-lg font-medium text-gray-900 mb-4">Academic Information</h4>
@@ -53,7 +81,7 @@
                             id="student_id"
                             wire:model="student_id"
                             label="Student ID"
-                            placeholder="Enter student ID"
+                            placeholder="Enter Student ID"
                             required />
 
                         <!-- ULI -->
@@ -87,50 +115,18 @@
                             required />
                     </div>
                 </div>
-
-                
             </div>
         </x-modals.modal-body>
 
         <x-modals.modal-footer>
-            <div class="flex justify-between w-full">
-                <!-- Left side - Mark as Dropped button -->
-                <div class="flex">
-                    @if($student->user && $student->user->status !== 'dropped')
-                        <x-buttons.danger-button wire:confirm="Are you sure you want to mark this student as dropped? This will update their user status and mark all pending assessments as dropped." 
-                            wire:click="markAsDropped"
-                            wire:loading.attr="disabled">
-                            <span wire:loading.remove wire:target="markAsDropped">
-                                <x-icon name="user-times" style="fas" class="w-4 h-4 mr-2" />
-                                Mark as Dropped
-                            </span>
-                            <span wire:loading wire:target="markAsDropped" class="flex items-center">
-                                <x-icon name="spinner" style="fas" class="w-4 h-4 mr-2 animate-spin" />
-                                Processing...
-                            </span>
-                        </x-buttons.danger-button>
-                    @elseif($student->user && $student->user->status === 'dropped')
-                        <div class="bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-medium flex items-center">
-                            <x-icon name="user-times" style="fas" class="w-4 h-4 mr-2" />
-                            Student is Dropped
-                        </div>
-                    @endif
-                </div>
-
-                <!-- Right side - Cancel and Update buttons -->
-                <div class="flex space-x-3">
-                    <x-buttons.secondary-button wire:click="closeModal">
-                        Cancel
-                    </x-buttons.secondary-button>
-
-                    <x-buttons.primary-button type="submit" wire:loading.attr="disabled">
-                        <span wire:loading.remove wire:target="save">Update Student</span>
-                        <span wire:loading wire:target="save" class="flex items-center">
-                            <x-icon name="spinner" style="fas" class="w-4 h-4 mr-2 animate-spin" />
-                            Updating...
-                        </span>
-                    </x-buttons.primary-button>
-                </div>
+            <div class="flex justify-end space-x-3">
+                <x-buttons.secondary-button wire:click="$dispatch('closeModal')" type="button">
+                    Cancel
+                </x-buttons.secondary-button>
+                <x-buttons.primary-button type="submit">
+                    <x-icon name="user-plus" style="fas" class="w-4 h-4 mr-2" />
+                    Create Student
+                </x-buttons.primary-button>
             </div>
         </x-modals.modal-footer>
     </form>

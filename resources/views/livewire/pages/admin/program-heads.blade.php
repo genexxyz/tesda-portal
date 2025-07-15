@@ -170,9 +170,11 @@
                                         Edit
                                     </button>
                                     <button wire:click="toggleStatus({{ $programHead->id }})"
-                                            class="text-green-600 hover:text-green-900 text-sm font-medium">
-                                        {{ $programHead->status === 'active' ? 'Deactivate' : 'Activate' }}
-                                    </button>
+                                                class="{{ $programHead->status === 'active' ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900' }} text-sm font-medium"
+                                                title="{{ $programHead->status === 'active' ? 'Deactivate' : 'Activate' }}">
+                                            <x-icon name="{{ $programHead->status === 'active' ? 'user-slash' : 'user-check' }}" style="fas" class="w-4 h-4 mr-1" />
+                                            {{ $programHead->status === 'active' ? 'Deactivate' : 'Activate' }}
+                                        </button>
                                     <button wire:click="confirmDelete({{ $programHead->id }})"
                                             class="text-red-600 hover:text-red-900 text-sm font-medium">
                                         <x-icon name="trash" style="fas" class="w-4 h-4 mr-1" />

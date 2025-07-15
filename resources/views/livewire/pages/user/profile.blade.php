@@ -66,27 +66,7 @@
                             </dl>
                         </div>
 
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-500 mb-3">Account Information</h4>
-                            <dl class="space-y-3">
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-900">User ID</dt>
-                                    <dd class="text-sm text-gray-600">#{{ $user->id }}</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-900">Role</dt>
-                                    <dd class="text-sm text-gray-600">{{ $user->role?->name ?? 'No role assigned' }}</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-900">Account Status</dt>
-                                    <dd class="text-sm text-gray-600">{{ ucfirst($user->status) }}</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-900">Member Since</dt>
-                                    <dd class="text-sm text-gray-600">{{ $user->created_at->format('F j, Y') }}</dd>
-                                </div>
-                            </dl>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -278,43 +258,17 @@
                                 <div>
                                     <dt class="text-sm font-medium text-gray-900">Assigned Course</dt>
                                     <dd class="text-sm text-gray-600">
-                                        <div class="font-medium">{{ $programHead->course->code }}</div>
                                         <div class="text-gray-500">{{ $programHead->course->name }}</div>
                                     </dd>
                                 </div>
                             @endif
-                            <div>
-                                <dt class="text-sm font-medium text-gray-900">Position Start Date</dt>
-                                <dd class="text-sm text-gray-600">{{ $programHead->created_at->format('F j, Y') }}</dd>
-                            </div>
+                            
                         </dl>
                     </div>
                 </div>
             @endif
 
-            <!-- Generic Role Information for other roles -->
-            @if(!$student && !$programHead && $user->role)
-                <div class="bg-white shadow rounded-lg mb-6">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-900 flex items-center">
-                            <x-icon name="briefcase" style="fas" class="w-5 h-5 mr-2 text-gray-600" />
-                            Role Information
-                        </h3>
-                    </div>
-                    <div class="p-6">
-                        <dl class="space-y-4">
-                            <div>
-                                <dt class="text-sm font-medium text-gray-900">Current Role</dt>
-                                <dd class="text-sm text-gray-600">{{ $user->role->name }}</dd>
-                            </div>
-                            <div>
-                                <dt class="text-sm font-medium text-gray-900">Role Assigned</dt>
-                                <dd class="text-sm text-gray-600">{{ $user->created_at->format('F j, Y') }}</dd>
-                            </div>
-                        </dl>
-                    </div>
-                </div>
-            @endif
+            
 
         @else
             <!-- Error State -->

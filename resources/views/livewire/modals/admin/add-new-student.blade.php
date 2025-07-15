@@ -79,14 +79,16 @@
                             id="student_id"
                             wire:model="student_id"
                             label="Student ID"
-                            placeholder="Enter student ID (optional)" />
+                            placeholder="Enter Student ID"
+                            required />
 
                         <!-- ULI -->
                         <x-inputs.text-input 
                             id="uli"
                             wire:model="uli"
                             label="ULI (Unique Learner Identifier)"
-                            placeholder="Enter ULI (optional)" />
+                            placeholder="Enter ULI"
+                            required />
 
                         <!-- Course -->
                         <x-inputs.select-input 

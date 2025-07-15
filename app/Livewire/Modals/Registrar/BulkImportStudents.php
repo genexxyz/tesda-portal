@@ -9,7 +9,9 @@ use Livewire\WithFileUploads;
 use Livewire\Attributes\Rule;
 use Livewire\Attributes\Computed;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StudentImportTemplate;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class BulkImportStudents extends ModalComponent
@@ -106,7 +108,13 @@ $this->dispatch('student-created');
         }
     }
 
-    
+    public function downloadTemplate()
+    {
+        return Excel::download(
+            new StudentImportTemplate(Auth::user()->campus_id), 
+            'Student_Import_Template_' . now()->format('Y-m-d') . '.xlsx'
+        );
+    }
 
     public function render()
     {

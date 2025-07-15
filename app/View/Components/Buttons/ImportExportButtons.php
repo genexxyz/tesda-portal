@@ -9,7 +9,7 @@ use Illuminate\View\Component;
 class ImportExportButtons extends Component
 {
     public $importModal;
-    public $exportMethod;
+    public $exportModal;
     public $importTooltip;
     public $exportTooltip;
     public $showImport;
@@ -20,14 +20,14 @@ class ImportExportButtons extends Component
      */
     public function __construct(
         $importModal = '',
-        $exportMethod = '',
+        $exportModal = '',
         $importTooltip = 'Import data',
         $exportTooltip = 'Export data',
         $showImport = true,
         $showExport = true
     ) {
         $this->importModal = $importModal;
-        $this->exportMethod = $exportMethod;
+        $this->exportModal = $exportModal;
         $this->importTooltip = $importTooltip;
         $this->exportTooltip = $exportTooltip;
         $this->showImport = $showImport;

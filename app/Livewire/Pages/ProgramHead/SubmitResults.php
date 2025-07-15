@@ -63,21 +63,34 @@ class SubmitResults extends Component
         $this->initializeResults();
     }
 
-    public function getSortedResultsProperty()
-{
-    // Get all results from all schedules and sort them by student's last name
-    $allResults = collect();
-    
-    foreach ($this->assessment->schedules as $schedule) {
-        $allResults = $allResults->merge($schedule->results);
+    public function getResultsByScheduleProperty()
+    {
+        $resultsBySchedule = collect();
+        
+        foreach ($this->assessment->schedules as $schedule) {
+            $scheduleResults = $schedule->results->sortBy([
+                ['student.user.last_name', 'asc'],
+                ['student.user.first_name', 'asc']
+            ]);
+            
+            $resultsBySchedule->push([
+                'schedule' => $schedule,
+                'results' => $scheduleResults,
+                'is_editable' => $this->isScheduleEditable($schedule)
+            ]);
+        }
+        
+        return $resultsBySchedule->sortBy('schedule.assessment_date');
     }
-    
-    // Sort by student's last name, then first name
-    return $allResults->sortBy([
-        ['student.user.last_name', 'asc'],
-        ['student.user.first_name', 'asc']
-    ])->values();
-}
+
+    public function isScheduleEditable($schedule)
+    {
+        // Allow editing if the date is today or has passed
+        return $schedule->assessment_date && (
+            $schedule->assessment_date->isToday() || 
+            $schedule->assessment_date->isPast()
+        );
+    }
 
     public function initializeResults()
     {
@@ -224,7 +237,7 @@ class SubmitResults extends Component
         return view('livewire.pages.program-head.submit-results', [
         'competencyTypes' => $this->competencyTypes,
         'stats' => $this->completionStats,
-        'sortedResults' => $this->sortedResults
+        'resultsBySchedule' => $this->resultsBySchedule
     ]);
     }
 }

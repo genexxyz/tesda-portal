@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Livewire\Modals\Admin;
+namespace App\Livewire\Modals\Registrar;
 
 use App\Models\Student;
 use App\Models\Course;
 use App\Models\Academic;
 use App\Models\User;
-use App\Models\Campus;
 use App\Models\Role;
 use LivewireUI\Modal\ModalComponent;
 use Livewire\Attributes\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AddNewStudent extends ModalComponent
 {
@@ -27,9 +27,6 @@ class AddNewStudent extends ModalComponent
 
     #[Rule('required|exists:academics,id')]
     public $academic_year_id = '';
-
-    #[Rule('required|exists:campuses,id')]
-    public $campus_id = '';
 
     // User fields
     #[Rule('required|string|max:255')]
@@ -61,6 +58,9 @@ class AddNewStudent extends ModalComponent
                 // Get student role
                 $studentRole = Role::where('name', 'Student')->first();
                 
+                // Get registrar's campus
+                $registrarCampusId = Auth::user()->campus_id;
+                
                 // Create user first
                 $user = User::create([
                     'first_name' => ucfirst(strtolower($this->first_name)),
@@ -70,7 +70,7 @@ class AddNewStudent extends ModalComponent
                     'password' => Hash::make($this->password ?: 'password'),
                     'role_id' => $studentRole ? $studentRole->id : 1,
                     'status' => 'active',
-                    'campus_id' => $this->campus_id,
+                    'campus_id' => $registrarCampusId,
                 ]);
 
                 // Create student record
@@ -101,10 +101,17 @@ class AddNewStudent extends ModalComponent
 
     public function render()
     {
-        return view('livewire.modals.admin.add-new-student', [
-            'courses' => Course::orderBy('code', 'asc')->get(),
+        $registrarCampusId = Auth::user()->campus_id;
+        
+        // Get courses for the registrar's campus only
+        $campusCourses = Course::whereHas('campuses', function($query) use ($registrarCampusId) {
+            $query->where('campuses.id', $registrarCampusId);
+        })->orderBy('code', 'asc')->get();
+        
+        return view('livewire.modals.registrar.add-new-student', [
+            'courses' => $campusCourses,
             'academicYears' => Academic::orderBy('start_year', 'desc')->get(),
-            'campuses' => Campus::orderBy('name', 'asc')->get()
+            'userCampus' => Auth::user()->campus
         ]);
     }
 
