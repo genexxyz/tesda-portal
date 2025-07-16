@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TesdaFocalReportController;
 use App\Livewire\Auth\Login;
 use App\Livewire\Pages\Admin\AdminDashboard;
 use App\Livewire\Pages\Admin\Academics;
@@ -62,7 +63,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:tesda-focal')->prefix('tesda-focal')->name('tesda-focal.')->group(function () {
         Route::get('/dashboard', \App\Livewire\Pages\TesdaFocal\TesdaFocalDashboard::class)->name('dashboard');
         Route::get('/view-results', \App\Livewire\Pages\TesdaFocal\ViewResults::class)->name('view-results');
-        // Using modal for viewing assessment results instead of route
+        Route::get('/generate-reports', \App\Livewire\Pages\TesdaFocal\GenerateReports::class)->name('generate-reports');
+        Route::get('/download-report', [TesdaFocalReportController::class, 'downloadReport'])->name('download-report');
+        Route::get('/download-table', [TesdaFocalReportController::class, 'downloadTable'])->name('download-table');
     });
 
     //Student routes

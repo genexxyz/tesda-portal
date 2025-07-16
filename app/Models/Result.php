@@ -24,11 +24,14 @@ class Result extends Model
     }
 
     /**
-     * Get the assessment through the schedule (backward compatibility)
+     * Get the assessment through the schedule (accessor)
      */
-    public function assessment()
+    public function getAssessmentAttribute()
     {
-        return $this->assessmentSchedule?->assessment();
+        if ($this->assessmentSchedule && $this->assessmentSchedule->assessment) {
+            return $this->assessmentSchedule->assessment;
+        }
+        return null;
     }
 
     /**

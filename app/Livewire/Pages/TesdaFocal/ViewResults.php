@@ -12,6 +12,9 @@ use App\Models\Academic;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TesdaFocalReportExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ViewResults extends Component
 {
@@ -451,5 +454,70 @@ class ViewResults extends Component
             'resultsData' => $this->filteredResults,
             'overallStats' => $this->overallStats
         ]);
+    }
+
+    public function exportTable($format, $courseName, $examType, $courseCode, $qualificationName, $qualificationLevel)
+    {
+        try {
+            // Store the export parameters in session for the download route
+            session([
+                'table_export_filters' => [
+                    'format' => $format,
+                    'courseName' => $courseName,
+                    'examType' => $examType,
+                    'courseCode' => $courseCode,
+                    'qualificationName' => $qualificationName,
+                    'qualificationLevel' => $qualificationLevel,
+                    'activeTab' => $this->activeTab,
+                    'courseFilter' => $this->courseFilter,
+                    'qualificationFilter' => $this->qualificationFilter,
+                    'academicYearFilter' => $this->academicYearFilter,
+                    'export_type' => 'specific_table'
+                ]
+            ]);
+            
+            // Trigger download using JavaScript
+            $this->dispatch('download-table', [
+                'url' => route('tesda-focal.download-table'),
+                'format' => $format
+            ]);
+            
+        } catch (\Exception $e) {
+            $this->dispatch('swal:error', [
+                'title' => 'Export Failed',
+                'text' => 'Failed to export table: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function exportCampusTable($format, $courseName, $campusName)
+    {
+        try {
+            // Store the export parameters in session for the download route
+            session([
+                'table_export_filters' => [
+                    'format' => $format,
+                    'courseName' => $courseName,
+                    'campusName' => $campusName,
+                    'activeTab' => $this->activeTab,
+                    'courseFilter' => $this->courseFilter,
+                    'qualificationFilter' => $this->qualificationFilter,
+                    'academicYearFilter' => $this->academicYearFilter,
+                    'export_type' => 'campus_table'
+                ]
+            ]);
+            
+            // Trigger download using JavaScript
+            $this->dispatch('download-table', [
+                'url' => route('tesda-focal.download-table'),
+                'format' => $format
+            ]);
+            
+        } catch (\Exception $e) {
+            $this->dispatch('swal:error', [
+                'title' => 'Export Failed',
+                'text' => 'Failed to export table: ' . $e->getMessage()
+            ]);
+        }
     }
 }

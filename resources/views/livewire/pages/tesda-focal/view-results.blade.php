@@ -36,7 +36,7 @@
                     placeholder="Select Academic Year"
                     icon="calendar"
                     :options="$academicYears"
-                    textField="description" />
+                    textField="formatted_description" />
             </div>
 
         
@@ -227,9 +227,23 @@
                 @foreach($courseData as $data)
                     <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
                         <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg font-medium text-gray-900">
-                                {{ $data['exam_type'] }} - {{ $data['course_code'] }} {{ $data['qualification_name'] }} {{ $data['qualification_level'] }}
-                            </h3>
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-medium text-gray-900">
+                                    {{ $data['exam_type'] }} - {{ $data['course_code'] }} {{ $data['qualification_name'] }} {{ $data['qualification_level'] }}
+                                </h3>
+                                <div class="flex items-center space-x-2">
+                                    {{-- <button wire:click="exportTable('excel', '{{ $courseName }}', '{{ $data['exam_type'] }}', '{{ $data['course_code'] }}', '{{ $data['qualification_name'] }}', '{{ $data['qualification_level'] }}')"
+                                            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                        <x-icon name="file-excel" style="fas" class="w-3 h-3 mr-1" />
+                                        Excel
+                                    </button> --}}
+                                    <button wire:click="exportTable('pdf', '{{ $courseName }}', '{{ $data['exam_type'] }}', '{{ $data['course_code'] }}', '{{ $data['qualification_name'] }}', '{{ $data['qualification_level'] }}')"
+                                            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                        <x-icon name="file-pdf" style="fas" class="w-3 h-3 mr-1" />
+                                        PDF
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="overflow-x-auto">
@@ -383,7 +397,21 @@
 
                     <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
                         <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg font-medium text-gray-900">Assessment Results</h3>
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-medium text-gray-900">Assessment Results</h3>
+                                <div class="flex items-center space-x-2">
+                                    {{-- <button wire:click="exportCampusTable('excel', '{{ $courseName }}', '{{ $activeTab }}')"
+                                            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                        <x-icon name="file-excel" style="fas" class="w-3 h-3 mr-1" />
+                                        Excel
+                                    </button> --}}
+                                    <button wire:click="exportCampusTable('pdf', '{{ $courseName }}', '{{ $activeTab }}')"
+                                            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                        <x-icon name="file-pdf" style="fas" class="w-3 h-3 mr-1" />
+                                        PDF
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="overflow-x-auto">
@@ -509,3 +537,25 @@
         @endif
     </div>
 </div>
+
+<script>
+    // Handle table export downloads
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('download-table', (data) => {
+            const eventData = Array.isArray(data) ? data[0] : data;
+            
+            if (!eventData || !eventData.url) {
+                console.error('Invalid download event data:', eventData);
+                return;
+            }
+            
+            // Create a temporary link to trigger download
+            const link = document.createElement('a');
+            link.href = eventData.url;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+</script>

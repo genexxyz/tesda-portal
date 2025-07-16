@@ -16,6 +16,7 @@ class School extends Model
         'website',
         'logo',
         'tag_line',
+        'header_img',
         'created_at',
         'updated_at'
     ];

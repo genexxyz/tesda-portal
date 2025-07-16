@@ -43,13 +43,13 @@
                                 <h4 class="font-semibold mb-2">Import Template</h4>
                                 <p class="text-blue-700 text-xs mb-3">Download the template to ensure proper formatting:</p>
                                 <ul class="space-y-1 text-blue-700 text-xs mb-3">
-                                    <li>• <strong>Email:</strong> Must be unique and valid (Required)</li>
-                                    <li>• <strong>First Name:</strong> Student's first name (Required)</li>
-                                    <li>• <strong>Last Name:</strong> Student's last name (Required)</li>
+                                    <li>• <strong>Student ID</strong></li>
+                                    <li>• <strong>ULI:</strong> Unique Learner Identifier</li>
+                                    <li>• <strong>Last Name:</strong> Student's last name</li>
+                                    <li>• <strong>First Name:</strong> Student's first name</li>
                                     <li>• <strong>Middle Name:</strong> Student's middle name (Optional)</li>
-                                    <li>• <strong>Student ID:</strong> Will be auto-generated if empty (Optional)</li>
-                                    <li>• <strong>ULI:</strong> Unique Learner Identifier (Optional)</li>
-                                    <li>• <strong>Status:</strong> active, inactive, or dropped (Required)</li>
+                                    <li>• <strong>Course Code</strong></li>
+                                    
                                 </ul>
                                 <x-buttons.secondary-button
                                     wire:click="downloadTemplate"

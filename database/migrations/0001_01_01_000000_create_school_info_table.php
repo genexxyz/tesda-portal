@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->string('logo')->nullable();
             $table->string('tag_line')->nullable();
+            $table->string('header_img')->nullable();
             $table->timestamps();
         });
 

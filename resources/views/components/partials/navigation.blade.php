@@ -1,3 +1,6 @@
+<?php
+$schoolInfo = app('schoolInfo');
+?>
 <nav x-data="{ 
     open: window.innerWidth >= 768, 
     userDropdown: false,
@@ -172,7 +175,7 @@
 
         <!-- Sidebar Header -->
         <div class="p-4 border-b border-primary-700 flex justify-center items-center h-16">
-            <img src="{{ asset('storage/assets/img/default_logo.png') }}" alt="TESDA Logo"
+            <img src="{{url($schoolInfo['logo'] ?? 'storage/assets/img/default_logo.png')}}" alt="TESDA Logo"
                 class="sidebar-transition rounded-full object-cover"
                 x-bind:class="isHovered || isMobile ? 'h-12 w-12' : 'h-8 w-8'">
         </div>
