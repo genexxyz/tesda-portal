@@ -12,17 +12,16 @@
         .header {
             text-align: center;
             margin-bottom: 20px;
-            border-bottom: 2px solid #333;
             padding-bottom: 10px;
         }
         .header img {
-            position: absolute;
             top: 0;
-            width: 700px;
+            width: 720px;
             height: auto;
         }
         .title {
-            font-size: 16px;
+            margin-top: 10px;
+            font-size: 13px;
             font-weight: bold;
             margin-bottom: 5px;
         }
@@ -34,8 +33,7 @@
         .info-section {
             margin-bottom: 15px;
             padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
+            border-bottom: 1px solid #ddd;
         }
         .info-row {
             display: flex;
@@ -52,7 +50,7 @@
             margin-bottom: 20px;
         }
         th, td {
-            border: 1px solid #ddd;
+            border: 1px solid black;
             padding: 8px;
             text-align: center;
         }
@@ -68,7 +66,7 @@
             text-align: left;
             font-weight: bold;
         }
-        .competent {
+        /* .competent {
             background-color: #d4edda;
             color: #155724;
         }
@@ -91,7 +89,7 @@
         .passing-low {
             background-color: #f8d7da;
             color: #721c24;
-        }
+        } */
         .course-title {
             font-size: 14px;
             font-weight: bold;
@@ -101,32 +99,34 @@
             padding-bottom: 5px;
         }
         .assessment-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             margin: 15px 0 5px 0;
             color: #374151;
         }
         .totals-row {
-            background-color: #f8f9fa;
+            /* background-color: #f8f9fa; */
             font-weight: bold;
         }
         .footer {
+            width: 100%;
             margin-top: 20px;
             text-align: center;
             font-size: 8px;
             color: #666;
             border-top: 1px solid #ddd;
             padding-top: 10px;
+            position: fixed;
+            bottom: 0;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <img src="{{ public_path($schoolInfo->header_img ?? 'storage/assets/img/default_logo.png')}}" alt="">
-        <div class="title">TESDA Focal Assessment Results</div>
-        <div class="subtitle">Table Export Report</div>
+        <div class="title">TESDA Qualification Assessment Results</div>
         <div class="subtitle">Academic Year: {{ $academicYear }}</div>
-        <div class="subtitle">Generated on: {{ $generatedAt }}</div>
+        
     </div>
 
     <div class="info-section">
@@ -136,8 +136,8 @@
                 <span>{{ $filters['courseName'] }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Assessment:</span>
-                <span>{{ $filters['examType'] }} - {{ $filters['courseCode'] }} {{ $filters['qualificationName'] }} {{ $filters['qualificationLevel'] }}</span>
+                <span class="info-label">Campus:</span>
+                <span>All Campus</span>
             </div>
         @else
             <div class="info-row">
@@ -160,7 +160,7 @@
         </div>
     @else
         @foreach($data as $courseName => $courseData)
-            <div class="course-title">{{ $courseName }}</div>
+            {{-- <div class="course-title">{{ $courseName }}</div> --}}
             
             <!-- Debug: Show course data structure -->
             <!-- Course data count: {{ count($courseData) }} -->
@@ -177,8 +177,8 @@
                             <tr>
                                 @if(isset($filters['export_type']) && $filters['export_type'] === 'specific_table')
                                     <th>Campus</th>
-                                @else
-                                    <th>Assessment / Exam Type</th>
+                                {{-- @else
+                                    <th>Assessment / Exam Type</th> --}}
                                 @endif
                                 <th>Total Assessed</th>
                                 <th>Competent</th>
@@ -192,7 +192,7 @@
                             <tr @if($row['campus'] === 'TOTAL') class="totals-row" @endif>
                                 @if(isset($filters['export_type']) && $filters['export_type'] === 'specific_table')
                                     <td class="campus-name">{{ $row['campus'] ?? 'N/A' }}</td>
-                                @else
+                                {{-- @else
                                     <td class="campus-name">
                                         @if($row['campus'] === 'TOTAL')
                                             TOTAL
@@ -200,7 +200,7 @@
                                             {{ $assessmentData['assessment_info']['exam_type'] ?? 'N/A' }} - {{ $assessmentData['assessment_info']['course_code'] ?? 'N/A' }}<br>
                                             <small>{{ $assessmentData['assessment_info']['qualification_name'] ?? 'N/A' }} {{ $assessmentData['assessment_info']['qualification_level'] ?? '' }}</small>
                                         @endif
-                                    </td>
+                                    </td> --}}
                                 @endif
                                 <td>{{ number_format($row['total_assessed'] ?? 0) }}</td>
                                 <td class="competent">{{ number_format($row['competent'] ?? 0) }}</td>
@@ -225,7 +225,7 @@
 
     <div class="footer">
         <p>Report generated by TESDA Portal System</p>
-        <p>{{ now()->format('F j, Y g:i A') }}</p>
+        <p>{{ now()->format('F j, Y') }}</p>
     </div>
 </body>
 </html>

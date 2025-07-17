@@ -2,6 +2,7 @@
 
 namespace App\View\Components\Partials;
 
+use App\Models\Academic;
 use Illuminate\View\Component;
 
 class Header extends Component
@@ -14,6 +15,9 @@ class Header extends Component
 
     public function render()
     {
-        return view('components.partials.header');
+        $academicYear = Academic::where('is_active', true)->first();
+        return view('components.partials.header', [
+            'academicYear' => $academicYear,
+        ]);
     }
 }

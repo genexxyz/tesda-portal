@@ -44,14 +44,14 @@ class TesdaFocalReportController extends Controller
             }
             
         } catch (\Exception $e) {
-            Log::error('Error downloading TESDA Focal report: ' . $e->getMessage());
+            Log::error('Error downloading TESDA report: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to generate report: ' . $e->getMessage()], 500);
         }
     }
     
     private function generateExcelReport($reportData, $filters)
     {
-        $filename = 'tesda-focal-report-' . date('Y-m-d-H-i-s') . '.xlsx';
+        $filename = 'tesda-report-' . date('Y-m-d-H-i-s') . '.xlsx';
         
         return Excel::download(
             new TesdaFocalReportExport($reportData, $filters['selectedColumns']), 
@@ -112,8 +112,7 @@ class TesdaFocalReportController extends Controller
 
         foreach ($assessments as $assessment) {
             $courseName = $assessment->course->name ?? 'Unknown Course';
-            $assessmentKey = $assessment->examType->type . ' - ' . 
-                           $assessment->course->code . ' ' . 
+            $assessmentKey = $assessment->examType->type . ' - ' . ' ' . 
                            $assessment->qualificationType->name . ' ' . 
                            ($assessment->qualificationType->level ?? '');
 
@@ -452,7 +451,7 @@ class TesdaFocalReportController extends Controller
                     'total_students' => $data['totals']['total_students']
                 ];
                 
-                $assessmentKey = $data['exam_type'] . ' - ' . $data['course_code'] . ' ' . 
+                $assessmentKey = $data['exam_type'] . ' - ' . ' ' . 
                                $data['qualification_name'] . ' ' . $data['qualification_level'];
                 
                 $exportData[$data['course_name']] = [
@@ -754,8 +753,7 @@ class TesdaFocalReportController extends Controller
             // Convert to export format exactly like what the view displays
             $tableData = [];
             foreach ($filteredCourseData as $data) {
-                $assessmentKey = $data['exam_type'] . ' - ' . 
-                               $data['course_code'] . ' ' . 
+                $assessmentKey = $data['exam_type'] . ' - ' . ' ' . 
                                $data['qualification_name'] . ' ' . 
                                $data['qualification_level'];
 

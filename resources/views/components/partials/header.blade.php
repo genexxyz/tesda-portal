@@ -9,7 +9,7 @@
     @endpush
 @endif
 
-<div class="bg-white border-b border-gray-200 px-4 py-6 sm:px-6">
+<div class="bg-white border-b border-gray-200 px-4 py-6 sm:px-6 rounded-lg">
     <div class="max-w-8xl mx-auto">
         <!-- Breadcrumb -->
         @if($breadcrumb)
@@ -33,9 +33,13 @@
 
         <!-- Header Title -->
         @if($title)
-            <h1 class="text-2xl font-bold text-gray-900">
+            <h1 class="text-2xl font-bold text-primary">
                 {{ $title }}
             </h1>
+            @if ($academicYear)
+            <p class="italic text-primary">{{ $academicYear->formatted_description}}</p>
+            @endif
+            
         @endif
     </div>
 </div>
