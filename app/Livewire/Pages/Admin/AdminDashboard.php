@@ -34,12 +34,12 @@ class AdminDashboard extends Component
         $totalStudents = User::where('role_id', 5)->count();
         $totalRegistrars = User::where('role_id', 2)->count();
         $totalProgramHeads = User::where('role_id', 3)->count();
-$totalCampuses = Campus::count();
-$campuses = Campus::all();
-$courses = Course::all();
+        $totalCampuses = Campus::count();
+        $campuses = Campus::all();
+        $courses = Course::all();
 
-$date = now()->format('l, F j, Y'); // Format date as "Day, Month Date, Year"
-$time = now()->format('h:i A'); // Format time as 12-hour with AM/PM
+        $date = now()->format('l, F j, Y'); // Format date as "Day, Month Date, Year"
+        $time = now()->format('h:i A'); // Format time as 12-hour with AM/PM
         return view('livewire.pages.admin.admin-dashboard', [
             'totalUsers' => $totalUsers,
             'totalStudents' => $totalStudents,

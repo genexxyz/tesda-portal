@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             'contact_number' => '09123456789',
             'email' => 'communications@bpc.edu.ph',
             'website' => 'bpc.edu.ph',
-            'logo' => 'default.png',
+            'logo' => 'storage/assets/img/default_logo.png',
             'tag_line' => 'Your Partner to Reach the World',
         ]);
 
@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
             'code' => 'MA',
             'name' => 'MALOLOS',
             'number' => 1,
-            'color' => '#0000FF', // Blue
+            'color' => '#008000', // Green
         ]);
 
         Course::create([

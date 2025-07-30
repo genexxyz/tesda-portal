@@ -58,8 +58,8 @@
 
 
 
-    <div class="max-w-7xl mx-auto flex md:flex-row flex-col items-center justify-center gap-3">
-        <div class="mt-6 bg-gray-300 rounded-lg p-6 w-2/3">
+    <div class="max-w-7xl mx-auto">
+        <div class="mt-6 bg-gray-300 rounded-lg p-6">
             <div class="mb-8">
                 <div class="border-b border-gray-200">
                     <nav class="-mb-px flex space-x-8" aria-label="Tabs">
@@ -117,6 +117,5 @@
             </div>
 
         </div>
-        <div class="mt-6 bg-gray-300 rounded-lg py-12 md:w-1/3 w-auto h-58"></div>
     </div>
 </div>

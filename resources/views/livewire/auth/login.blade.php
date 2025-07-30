@@ -20,7 +20,7 @@
                     placeholder="Enter your password..." 
                     
                 />
-                <div class="w-full flex justify-end mb-5">
+                {{-- <div class="w-full flex justify-end mb-5">
                     <x-buttons.link 
                         href="#" 
                         color="secondary" 
@@ -28,9 +28,9 @@
                     >
                         Forgot your password?
                     </x-buttons.link>
-                </div>
+                </div> --}}
 
-                <x-buttons.primary-button class="w-full" type="submit">
+                <x-buttons.primary-button class="w-full mt-6" type="submit">
                     Login
                 </x-buttons.primary-button>
             </form>
